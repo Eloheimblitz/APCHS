@@ -233,3 +233,28 @@ before advancing:
   wizard again.
 - The final Submit-time full-form validation is unchanged, as a safety
   net.
+
+## 6. Deployment prep (Render + Vercel)
+
+Deploying to Render via the existing `render.yaml` blueprint surfaces a
+bootstrap problem: with `SEED_DEMO_USERS=false` (the production default),
+**no user accounts exist at all** on a fresh database, and there's no way
+to create the first admin account other than through the admin-only Users
+page — a chicken-and-egg problem.
+
+`render.yaml` was temporarily changed to `SEED_DEMO_USERS: true` so the
+first deploy seeds `admin`/`admin123`. The intended one-time bootstrap
+sequence:
+
+1. Deploy the blueprint (`SEED_DEMO_USERS=true`).
+2. Log in as `admin`/`admin123`, immediately create a real admin account
+   from the Users page, and disable both demo accounts.
+3. Edit `render.yaml` back to `SEED_DEMO_USERS: false`, commit, and push
+   — Render redeploys automatically on push to the connected branch.
+
+Frontend (Vercel) and backend (Render) are deployed separately per the
+README's existing "Deployment: Vercel + Render" section; `APP_FRONTEND_URL`
+on the backend has to be set manually (`sync: false` in the blueprint)
+once the Vercel URL is known, then `VITE_API_BASE_URL` on the frontend
+once the Render URL is known — a two-way circle-back, also already
+documented in the README.
