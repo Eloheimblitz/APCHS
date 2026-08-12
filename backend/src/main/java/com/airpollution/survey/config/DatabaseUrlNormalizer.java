@@ -19,7 +19,8 @@ public final class DatabaseUrlNormalizer {
 
         URI uri = URI.create(databaseUrl);
         String database = uri.getPath() == null ? "" : uri.getPath().replaceFirst("^/", "");
-        String jdbcUrl = "jdbc:postgresql://" + uri.getHost() + ":" + uri.getPort() + "/" + database;
+        int port = uri.getPort() == -1 ? 5432 : uri.getPort();
+        String jdbcUrl = "jdbc:postgresql://" + uri.getHost() + ":" + port + "/" + database;
         System.setProperty("spring.datasource.url", jdbcUrl);
 
         if (isBlank(System.getenv("DB_USERNAME")) || isBlank(System.getenv("DB_PASSWORD"))) {
