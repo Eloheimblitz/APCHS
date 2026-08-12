@@ -3,9 +3,10 @@ import FormField from './FormField';
 import HealthItemTable from './HealthItemTable';
 import { defaultSurvey, sections } from '../utils/surveyConfig';
 
-export default function SurveyForm({ initialValues = {}, lockedFields = [], onSubmit, submitLabel = 'Save survey', loading = false }) {
+export default function SurveyForm({ initialValues = {}, lockedFields = [], onSubmit, submitLabel = 'Save survey', loading = false, unlockAllSections = false }) {
   const [values, setValues] = useState({ ...defaultSurvey, ...initialValues });
   const [activeSection, setActiveSection] = useState(0);
+  const [maxUnlockedSection, setMaxUnlockedSection] = useState(unlockAllSections ? sections.length - 1 : 0);
   const [gpsStatus, setGpsStatus] = useState('');
   const [gpsLoading, setGpsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
@@ -73,6 +74,26 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
     }
   }
 
+  function goNext() {
+    const missing = requiredMissingInSection(sections[activeSection], activeSection, values);
+    if (missing.length > 0) {
+      setValidationErrors(missing);
+      return;
+    }
+    setValidationErrors([]);
+    setActiveSection((value) => {
+      const next = value + 1;
+      setMaxUnlockedSection((max) => Math.max(max, next));
+      return next;
+    });
+  }
+
+  function goToSection(index) {
+    if (index > maxUnlockedSection) return;
+    setValidationErrors([]);
+    setActiveSection(index);
+  }
+
   function submit(event) {
     event.preventDefault();
     if (values.consentObtained !== true) return;
@@ -80,6 +101,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
     if (missing.length > 0) {
       setValidationErrors(missing);
       setActiveSection(missing[0].sectionIndex);
+      setMaxUnlockedSection((max) => Math.max(max, missing[0].sectionIndex));
       return;
     }
     onSubmit(values);
@@ -100,7 +122,13 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
 
       <div className="section-tabs">
         {sections.map((item, index) => (
-          <button type="button" key={item.title} className={index === activeSection ? 'active' : ''} onClick={() => setActiveSection(index)}>
+          <button
+            type="button"
+            key={item.title}
+            className={index === activeSection ? 'active' : ''}
+            disabled={index > maxUnlockedSection}
+            onClick={() => goToSection(index)}
+          >
             {index + 1}
           </button>
         ))}
@@ -122,7 +150,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
         )}
         {validationErrors.length > 0 && (
           <div className="alert error">
-            <strong>Complete required fields before submitting.</strong>
+            <strong>Complete the required fields marked * in this section before continuing.</strong>
             <ul>
               {validationErrors.slice(0, 6).map((item) => (
                 <li key={`${item.sectionIndex}-${item.name}`}>{item.label}</li>
@@ -147,9 +175,9 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
       </section>
 
       <div className="form-actions sticky-actions">
-        <button type="button" className="secondary-button" disabled={activeSection === 0} onClick={() => setActiveSection((value) => value - 1)}>Previous</button>
+        <button type="button" className="secondary-button" disabled={activeSection === 0} onClick={() => goToSection(activeSection - 1)}>Previous</button>
         {activeSection < sections.length - 1 ? (
-          <button type="button" onClick={() => setActiveSection((value) => value + 1)}>Next</button>
+          <button type="button" onClick={goNext}>Next</button>
         ) : (
           <button disabled={loading || values.consentObtained !== true}>{loading ? 'Saving...' : submitLabel}</button>
         )}
@@ -162,16 +190,22 @@ function isLocked(field, lockedFields) {
   return field.readOnly || lockedFields.includes(field.name);
 }
 
+function requiredMissingInSection(section, sectionIndex, values) {
+  const missing = [];
+  section.fields.forEach((field) => {
+    if (!field.required || !isVisible(field, values)) return;
+    const value = values[field.name];
+    if (value === null || value === undefined || value === '') {
+      missing.push({ sectionIndex, name: field.name, label: `${section.title}: ${field.label}` });
+    }
+  });
+  return missing;
+}
+
 function requiredMissing(values) {
   const missing = [];
   sections.forEach((section, sectionIndex) => {
-    section.fields.forEach((field) => {
-      if (!field.required || !isVisible(field, values)) return;
-      const value = values[field.name];
-      if (value === null || value === undefined || value === '') {
-        missing.push({ sectionIndex, name: field.name, label: `${section.title}: ${field.label}` });
-      }
-    });
+    missing.push(...requiredMissingInSection(section, sectionIndex, values));
   });
   return missing;
 }

@@ -42,7 +42,6 @@ export default function Login() {
             <p>Field data from household interviews feeds directly into risk analysis and reporting for the study area.</p>
           </div>
           <div className="login-brand-stats">
-            <strong>JWT-secured accounts</strong>
             <strong>Works offline in the field</strong>
             <strong>Role-based access for admins and surveyors</strong>
           </div>

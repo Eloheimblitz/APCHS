@@ -200,4 +200,36 @@ on direction.
   readability.
 
 No backend, routing, or data-handling logic changed — this was a
-presentation-layer-only pass.
+presentation-layer-only pass. The login brand panel's "JWT-secured
+accounts" line was later removed per feedback, leaving the offline and
+role-based-access points.
+
+## 5. Required-field navigation gating
+
+### Why
+
+The multi-section survey form marks some fields required with a `*`, but
+the "Next" button never actually checked them — only the final Submit
+validated the whole form and jumped back to the first incomplete section.
+In practice a surveyor could click through every section without filling
+anything required and only find out at the very end.
+
+### What changed
+
+`SurveyForm.jsx` now validates the *current* section's required fields
+before advancing:
+
+- "Next" runs `requiredMissingInSection` for the active section; if
+  anything is missing it shows the error list and stays put instead of
+  moving on.
+- The numbered section tabs are locked past whichever section has been
+  validated so far (`maxUnlockedSection` state) — you can always jump
+  backward to review/edit earlier sections, but can't skip ahead of an
+  incomplete one via the tabs either.
+- Editing an existing record (`SurveyPage.jsx`, `mode === 'edit'`) passes
+  a new `unlockAllSections` prop so the gate doesn't apply — an existing
+  record is already complete, so the surveyor can jump straight to
+  whichever section needs a fix rather than being forced through the
+  wizard again.
+- The final Submit-time full-form validation is unchanged, as a safety
+  net.
