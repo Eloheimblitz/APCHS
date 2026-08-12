@@ -47,7 +47,7 @@ public class SurveyMapper {
         return builder.isEmpty() ? "None reported" : builder.toString();
     }
 
-    private String label(String key) {
+    public String label(String key) {
         if (key == null || key.isBlank()) return "";
         String[] parts = key.toLowerCase(Locale.ROOT).split("_");
         StringBuilder builder = new StringBuilder();

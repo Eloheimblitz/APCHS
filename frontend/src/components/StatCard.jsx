@@ -1,6 +1,6 @@
-export default function StatCard({ label, value }) {
+export default function StatCard({ label, value, tone = 'blue' }) {
   return (
-    <article className="stat-card">
+    <article className={`stat-card tone-${tone}`}>
       <span>{label}</span>
       <strong>{value ?? 0}</strong>
     </article>

@@ -1,10 +1,12 @@
 package com.airpollution.survey.service;
 
+import com.airpollution.survey.entity.HealthItemEntry;
 import com.airpollution.survey.entity.SurveyRecord;
 import com.opencsv.CSVWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.poi.ss.usermodel.Row;
@@ -17,19 +19,54 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ExportService {
-    private static final String[] HEADERS = {
-            "Survey ID", "Survey Date", "Household ID", "Submitted By", "Study Area", "Age", "Gender",
-            "Cooking", "Wood/Coal Cooking Location", "Symptoms Summary", "Conditions Summary",
-            "Distance To Highway", "Distance To Factory", "Grid ID", "Latitude", "Longitude", "GPS Accuracy",
-            "Remarks"
+    private static final String[] BASE_HEADERS = {
+            "Survey ID", "Survey Date", "Household ID", "Submitted By", "Surveyor ID", "Consent Obtained",
+            "Study Area", "Latitude", "Longitude", "GPS Accuracy", "Grid ID", "Distance To Highway", "Distance To Factory",
+            "Age", "Duration Of Stay At Study Area", "Gender", "Tobacco Use", "Alcohol",
+            "Ethnicity", "Other Ethnicity", "Education", "Other Education", "Occupation", "Other Occupation",
+            "Cooking", "Wood/Coal Cooking Location",
+            "Has Children", "Number Of Children", "Child Birthplace", "Child Vaccination",
+            "Respondent Vaccination", "MHIS Smart Card", "Cancer Type", "Fever Duration", "Remarks"
     };
+
+    private static final String[] ITEM_SUFFIXES = {
+            "Present", "Visited Hospital", "Hospital Name(s)", "IPD", "OPD", "Missed School/Work", "Days Missed"
+    };
+
+    private static final String[] OTHER_ISSUE_SUFFIXES = {
+            "Description", "Visited Hospital", "Hospital Name(s)", "IPD", "OPD", "Missed School/Work", "Days Missed"
+    };
+
+    private static final int OTHER_ISSUE_SLOTS = 5;
 
     private final SurveyService surveyService;
     private final SurveyMapper mapper;
+    private final String[] headers;
 
     public ExportService(SurveyService surveyService, SurveyMapper mapper) {
         this.surveyService = surveyService;
         this.mapper = mapper;
+        this.headers = buildHeaders();
+    }
+
+    private String[] buildHeaders() {
+        List<String> all = new ArrayList<>(List.of(BASE_HEADERS));
+        for (String key : SurveyCatalog.SYMPTOM_KEYS) {
+            for (String suffix : ITEM_SUFFIXES) {
+                all.add(mapper.label(key) + " - " + suffix);
+            }
+        }
+        for (String key : SurveyCatalog.CONDITION_KEYS) {
+            for (String suffix : ITEM_SUFFIXES) {
+                all.add(mapper.label(key) + " - " + suffix);
+            }
+        }
+        for (int i = 1; i <= OTHER_ISSUE_SLOTS; i++) {
+            for (String suffix : OTHER_ISSUE_SUFFIXES) {
+                all.add("Other Issue " + i + " - " + suffix);
+            }
+        }
+        return all.toArray(String[]::new);
     }
 
     @Transactional(readOnly = true)
@@ -38,7 +75,7 @@ public class ExportService {
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             CSVWriter writer = new CSVWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8));
-            writer.writeNext(HEADERS);
+            writer.writeNext(headers);
             for (SurveyRecord record : records) {
                 writer.writeNext(row(record));
             }
@@ -55,8 +92,8 @@ public class ExportService {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Survey Records");
             Row header = sheet.createRow(0);
-            for (int i = 0; i < HEADERS.length; i++) {
-                header.createCell(i).setCellValue(HEADERS[i]);
+            for (int i = 0; i < headers.length; i++) {
+                header.createCell(i).setCellValue(headers[i]);
             }
             for (int r = 0; r < records.size(); r++) {
                 Row row = sheet.createRow(r + 1);
@@ -65,7 +102,7 @@ public class ExportService {
                     row.createCell(c).setCellValue(values[c]);
                 }
             }
-            for (int i = 0; i < HEADERS.length; i++) {
+            for (int i = 0; i < headers.length; i++) {
                 sheet.autoSizeColumn(i);
             }
             workbook.write(output);
@@ -80,19 +117,63 @@ public class ExportService {
     }
 
     private String[] row(SurveyRecord r) {
-        return new String[] {
+        List<String> values = new ArrayList<>(List.of(
                 text(r.getSurveyId()), text(r.getSurveyDate()), text(r.getHouseholdId()), text(r.getSubmittedBy()),
-                label(r.getStudyArea()), text(r.getAge()), label(r.getGender()),
+                text(r.getSurveyorId()), bool(r.getConsentObtained()),
+                label(r.getStudyArea()), text(r.getLatitude()), text(r.getLongitude()), text(r.getGpsAccuracy()),
+                text(r.getGridId()), text(r.getDistanceToHighway()), text(r.getDistanceToFactory()),
+                text(r.getAge()), text(r.getDurationOfStayAtStudyArea()), label(r.getGender()),
+                label(r.getTobaccoUse()), bool(r.getAlcohol()),
+                label(r.getEthnicity()), text(r.getOtherEthnicity()), label(r.getEducation()), text(r.getOtherEducation()),
+                label(r.getOccupation()), text(r.getOtherOccupation()),
                 label(r.getPrimaryCookingFuel()), label(r.getWoodCoalCookingLocation()),
-                mapper.summarize(r.getSymptoms()), mapper.summarize(r.getConditions()),
-                text(r.getDistanceToHighway()), text(r.getDistanceToFactory()), text(r.getGridId()),
-                text(r.getLatitude()), text(r.getLongitude()), text(r.getGpsAccuracy()),
+                bool(r.getHasChildren()), text(r.getNumberOfChildren()), label(r.getChildBirthplace()), label(r.getChildVaccination()),
+                bool(r.getRespondentVaccination()), bool(r.getMhisSmartCard()), text(r.getCancerType()), label(r.getFeverDuration()),
                 text(r.getRemarks())
-        };
+        ));
+
+        for (String key : SurveyCatalog.SYMPTOM_KEYS) {
+            appendItem(values, findByKey(r.getSymptoms(), key));
+        }
+        for (String key : SurveyCatalog.CONDITION_KEYS) {
+            appendItem(values, findByKey(r.getConditions(), key));
+        }
+        List<HealthItemEntry> otherIssues = r.getOtherIssues();
+        for (int i = 0; i < OTHER_ISSUE_SLOTS; i++) {
+            HealthItemEntry item = otherIssues != null && i < otherIssues.size() ? otherIssues.get(i) : null;
+            values.add(item == null ? "" : text(item.getDescription()));
+            appendVisitDetail(values, item);
+        }
+
+        return values.toArray(String[]::new);
+    }
+
+    private void appendItem(List<String> values, HealthItemEntry item) {
+        values.add(item == null ? "" : bool(item.getPresent()));
+        appendVisitDetail(values, item);
+    }
+
+    private void appendVisitDetail(List<String> values, HealthItemEntry item) {
+        values.add(item == null ? "" : bool(item.getVisitedHospital()));
+        values.add(item == null ? "" : text(item.getHospitalNames()));
+        values.add(item == null ? "" : bool(item.getIpd()));
+        values.add(item == null ? "" : bool(item.getOpd()));
+        values.add(item == null ? "" : bool(item.getMissedSchoolOrWork()));
+        values.add(item == null ? "" : text(item.getDaysMissed()));
+    }
+
+    private HealthItemEntry findByKey(List<HealthItemEntry> items, String key) {
+        if (items == null) return null;
+        return items.stream().filter(entry -> key.equals(entry.getKey())).findFirst().orElse(null);
     }
 
     private String text(Object value) {
         return value == null ? "" : String.valueOf(value);
+    }
+
+    private String bool(Boolean value) {
+        if (value == null) return "";
+        return value ? "Yes" : "No";
     }
 
     private String label(String value) {

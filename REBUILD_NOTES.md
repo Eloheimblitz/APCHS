@@ -1,9 +1,11 @@
 # Rebuild Notes
 
 This document explains what changed in this project and why, for anyone
-picking up the repo after the fact. It covers two things: the local
-development environment that was set up from scratch, and a full rebuild of
-the survey form/data model to match the field team's paper questionnaire.
+picking up the repo after the fact. It covers: the local development
+environment set up from scratch, a full rebuild of the survey form/data
+model to match the field team's paper questionnaire, an expansion of the
+CSV/Excel export to include every field, and a visual redesign of the
+frontend.
 
 ## 1. Local development environment
 
@@ -137,3 +139,65 @@ Hibernate rebuilt it clean from the new entity on the next boot.
 - Frontend visual verification against the paper form photos was left for
   manual check in the browser, since it isn't something that can be
   confirmed via API calls alone.
+
+## 3. Full data export
+
+### Why
+
+After the rebuild, the CSV/Excel export (`ExportService.java`) still only
+produced the same curated ~18-column subset it always had — a
+"Symptoms Summary" and "Conditions Summary" string, not the actual
+per-item detail. That's not enough for real analysis: researchers need to
+see, for every symptom and condition, whether it was present, whether the
+respondent visited a hospital for it, the hospital name(s), IPD/OPD, missed
+school/work, and days missed — exactly what the paper form captures.
+
+### What changed
+
+`ExportService.java` now builds its header row dynamically from
+`SurveyCatalog.SYMPTOM_KEYS` (15) and `SurveyCatalog.CONDITION_KEYS` (7),
+plus 5 fixed "Other Issue" slots, each expanded into its own set of
+columns (Present / Visited Hospital / Hospital Name(s) / IPD / OPD /
+Missed School/Work / Days Missed — 6 or 7 columns per item depending on
+whether "Present" applies). Combined with the base demographic/survey
+columns, this is a 224-column export where every field entered on the
+form has its own column. `SurveyMapper.label()` was made public so
+`ExportService` can reuse the same key-to-label formatting
+(`DRY_COUGH` → `Dry Cough`) for column headers.
+
+### Verification
+
+Exported a CSV against the test record used for the earlier verification
+pass and confirmed the expanded columns matched the database exactly
+(e.g. `Asthma - Present/Visited Hospital/Hospital Name(s)/IPD/OPD/Missed
+School-Work/Days Missed` → `Yes/Yes/A/Yes/Yes/Yes/2`, matching the raw
+`conditions` JSON for that record).
+
+## 4. Frontend visual redesign
+
+### Why
+
+The functional rebuild was done, but the visual design was generic and
+inconsistent — colors and shadows were hard-coded ad hoc throughout
+`styles.css` rather than following a shared system. The user asked for a
+general visual refresh across the whole app, deferring to design judgment
+on direction.
+
+### What changed
+
+- Introduced a CSS custom-property token system (`:root` in `styles.css`)
+  for color, spacing, radius, and shadow, replacing the scattered
+  hard-coded values. Every existing class name was kept as-is, so this is
+  a restyle, not a restructure — no other component needed its
+  `className` usage rewritten.
+- `Login.jsx` restructured into a branded two-panel layout (gradient brand
+  panel + form panel) instead of a single centered card.
+- `StatCard.jsx` gained an optional `tone` prop (blue/teal/amber/rose/
+  green) rendered as a colored top accent; `Dashboard.jsx` assigns a tone
+  per metric so the stat grid isn't a wall of identical white boxes.
+- Refined table styling (zebra striping, header treatment), button/badge
+  states, and the `HealthItemTable` Y/N toggle buttons for better
+  readability.
+
+No backend, routing, or data-handling logic changed — this was a
+presentation-layer-only pass.

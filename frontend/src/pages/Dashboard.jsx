@@ -18,13 +18,13 @@ export default function Dashboard() {
   if (!summary) return <div className="page"><p>Loading dashboard...</p></div>;
 
   const cards = [
-    ['Total households surveyed', summary.totalHouseholdsSurveyed],
-    ['Study areas covered', summary.totalStudyAreasCovered],
-    ['Using wood/firewood', summary.householdsUsingWoodFirewood],
-    ['Smokers', summary.smokers],
-    ['Respiratory symptoms', summary.respondentsWithRespiratorySymptoms],
-    ['Hospital visits', summary.hospitalVisits],
-    ['Avg missed days', summary.averageMissedWorkSchoolDays]
+    ['Total households surveyed', summary.totalHouseholdsSurveyed, 'blue'],
+    ['Study areas covered', summary.totalStudyAreasCovered, 'teal'],
+    ['Using wood/firewood', summary.householdsUsingWoodFirewood, 'amber'],
+    ['Smokers', summary.smokers, 'amber'],
+    ['Respiratory symptoms', summary.respondentsWithRespiratorySymptoms, 'rose'],
+    ['Hospital visits', summary.hospitalVisits, 'rose'],
+    ['Avg missed days', summary.averageMissedWorkSchoolDays, 'green']
   ];
 
   return (
@@ -38,7 +38,7 @@ export default function Dashboard() {
       </header>
 
       <section className="stat-grid">
-        {cards.map(([label, value]) => <StatCard key={label} label={label} value={value} />)}
+        {cards.map(([label, value, tone]) => <StatCard key={label} label={label} value={value} tone={tone} />)}
       </section>
 
       <section className="chart-grid">
