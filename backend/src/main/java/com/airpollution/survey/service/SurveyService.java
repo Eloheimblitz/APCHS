@@ -24,31 +24,44 @@ import org.springframework.web.server.ResponseStatusException;
 public class SurveyService {
     private final SurveyRecordRepository repository;
     private final SurveyMapper mapper;
-    private final RiskScoringService riskScoringService;
 
-    public SurveyService(SurveyRecordRepository repository, SurveyMapper mapper, RiskScoringService riskScoringService) {
+    public SurveyService(SurveyRecordRepository repository, SurveyMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
-        this.riskScoringService = riskScoringService;
     }
 
     @Transactional
     public SurveyResponse create(SurveyCreateRequest request, Authentication authentication) {
         SurveyRecord record = new SurveyRecord();
         mapper.copyPayload(request, record);
-        applyLocationDefaults(record);
         record.setSubmittedBy(authentication.getName());
         record.setCreatedAt(OffsetDateTime.now());
         record.setUpdatedAt(OffsetDateTime.now());
         record.setSurveyId(nextSurveyId(request.getSurveyDate()));
         record.setHouseholdId(record.getSurveyId().replace("APCHS", "HH"));
-        riskScoringService.applyScores(record);
         return mapper.toResponse(repository.save(record));
     }
 
     @Transactional(readOnly = true)
     public List<SurveyResponse> list(Map<String, String> filters, Authentication authentication) {
-        return repository.findAll(specification(filters, authentication)).stream().map(mapper::toResponse).toList();
+        List<SurveyRecord> records = findFiltered(filters, authentication);
+        return records.stream().map(mapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SurveyRecord> findFiltered(Map<String, String> filters, Authentication authentication) {
+        List<SurveyRecord> records = repository.findAll(specification(filters, authentication));
+        if (hasValue(filters.get("symptom"))) {
+            String symptom = filters.get("symptom");
+            records = records.stream().filter(r -> hasSymptomPresent(r, symptom)).toList();
+        }
+        return records;
+    }
+
+    private boolean hasSymptomPresent(SurveyRecord record, String symptomKey) {
+        if (record.getSymptoms() == null) return false;
+        return record.getSymptoms().stream()
+                .anyMatch(entry -> symptomKey.equals(entry.getKey()) && Boolean.TRUE.equals(entry.getPresent()));
     }
 
     @Transactional(readOnly = true)
@@ -68,9 +81,7 @@ public class SurveyService {
     public SurveyResponse update(Long id, SurveyUpdateRequest request, Authentication authentication) {
         SurveyRecord record = getRecord(id, authentication);
         mapper.copyPayload(request, record);
-        applyLocationDefaults(record);
         record.setUpdatedAt(OffsetDateTime.now());
-        riskScoringService.applyScores(record);
         return mapper.toResponse(repository.save(record));
     }
 
@@ -87,27 +98,12 @@ public class SurveyService {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             addEquals(predicates, cb, root.get("studyArea"), filters.get("studyArea"));
-            addEquals(predicates, cb, root.get("district"), filters.get("district"));
-            addEquals(predicates, cb, root.get("block"), filters.get("block"));
-            addEquals(predicates, cb, root.get("village"), filters.get("village"));
-            addEquals(predicates, cb, root.get("riskLevel"), filters.get("riskLevel"));
             addEquals(predicates, cb, root.get("primaryCookingFuel"), filters.get("cookingFuel"));
-            if (hasValue(filters.get("visitedHospital"))) {
-                predicates.add(cb.equal(root.get("visitedHospital"), Boolean.valueOf(filters.get("visitedHospital"))));
-            }
             if (hasValue(filters.get("fromDate"))) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("surveyDate"), LocalDate.parse(filters.get("fromDate"))));
             }
             if (hasValue(filters.get("toDate"))) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("surveyDate"), LocalDate.parse(filters.get("toDate"))));
-            }
-            if (hasValue(filters.get("symptom"))) {
-                String symptom = filters.get("symptom");
-                for (String allowed : RiskScoringService.symptomFields()) {
-                    if (allowed.equals(symptom)) {
-                        predicates.add(cb.and(cb.isNotNull(root.get(symptom)), cb.notEqual(root.get(symptom), "NEVER")));
-                    }
-                }
             }
             if (!isAdmin(authentication)) {
                 predicates.add(cb.equal(root.get("submittedBy"), authentication.getName()));
@@ -120,15 +116,6 @@ public class SurveyService {
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch("ROLE_ADMIN"::equals);
-    }
-
-    private void applyLocationDefaults(SurveyRecord record) {
-        record.setDistrict("Ri Bhoi");
-        if ("BYRNIHAT".equals(record.getStudyArea()) || "NONGPOH".equals(record.getStudyArea())) {
-            record.setBlock("Umling");
-        } else if ("BHOIRYMBONG".equals(record.getStudyArea())) {
-            record.setBlock("Bhoirymbong");
-        }
     }
 
     private String nextSurveyId(LocalDate date) {

@@ -5,17 +5,13 @@ import java.util.Map;
 
 public record DashboardSummaryResponse(
         long totalHouseholdsSurveyed,
-        long totalRespondents,
         long totalStudyAreasCovered,
-        long totalHighRiskHouseholds,
         long householdsUsingWoodFirewood,
-        long householdsUsingBothGasAndWood,
         long smokers,
         long respondentsWithRespiratorySymptoms,
         long hospitalVisits,
         BigDecimal averageMissedWorkSchoolDays,
         Map<String, Long> surveyCountByStudyArea,
-        Map<String, Long> riskLevelDistribution,
         Map<String, Long> cookingFuelDistribution,
         Map<String, Long> commonSymptomsCount,
         Map<String, Long> hospitalVisitDistribution

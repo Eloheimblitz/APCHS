@@ -1,7 +1,6 @@
 package com.airpollution.survey.service;
 
 import com.airpollution.survey.entity.SurveyRecord;
-import com.airpollution.survey.repository.SurveyRecordRepository;
 import com.opencsv.CSVWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -19,18 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ExportService {
     private static final String[] HEADERS = {
-            "Survey ID", "Survey Date", "Household ID", "Submitted By", "Study Area", "District", "Block",
-            "Village", "Age", "Gender", "Cooking", "Cooking Location", "Hospital Visit", "Symptoms Summary",
-            "Exposure Risk Score", "Symptom Score", "Vulnerability Score", "Total Risk Score", "Risk Level",
-            "Latitude", "Longitude", "GPS Accuracy", "Grid ID", "Remarks"
+            "Survey ID", "Survey Date", "Household ID", "Submitted By", "Study Area", "Age", "Gender",
+            "Cooking", "Wood/Coal Cooking Location", "Symptoms Summary", "Conditions Summary",
+            "Distance To Highway", "Distance To Factory", "Grid ID", "Latitude", "Longitude", "GPS Accuracy",
+            "Remarks"
     };
 
-    private final SurveyRecordRepository repository;
     private final SurveyService surveyService;
     private final SurveyMapper mapper;
 
-    public ExportService(SurveyRecordRepository repository, SurveyService surveyService, SurveyMapper mapper) {
-        this.repository = repository;
+    public ExportService(SurveyService surveyService, SurveyMapper mapper) {
         this.surveyService = surveyService;
         this.mapper = mapper;
     }
@@ -79,18 +76,17 @@ public class ExportService {
     }
 
     private List<SurveyRecord> filtered(Map<String, String> filters, Authentication authentication) {
-        return repository.findAll(surveyService.specification(filters, authentication));
+        return surveyService.findFiltered(filters, authentication);
     }
 
     private String[] row(SurveyRecord r) {
         return new String[] {
                 text(r.getSurveyId()), text(r.getSurveyDate()), text(r.getHouseholdId()), text(r.getSubmittedBy()),
-                label(r.getStudyArea()), text(r.getDistrict()), text(r.getBlock()), text(r.getVillage()),
-                text(r.getAge()), label(r.getGender()), cooking(r), cookingLocation(r),
-                Boolean.TRUE.equals(r.getVisitedHospital()) ? "Yes" : "No", mapper.toResponse(r).mainSymptomsSummary(),
-                text(r.getExposureRiskScore()), text(r.getSymptomScore()), text(r.getVulnerabilityScore()),
-                text(r.getTotalRiskScore()), label(r.getRiskLevel()), text(r.getLatitude()), text(r.getLongitude()),
-                text(r.getGpsAccuracy()), text(r.getGridId()),
+                label(r.getStudyArea()), text(r.getAge()), label(r.getGender()),
+                label(r.getPrimaryCookingFuel()), label(r.getWoodCoalCookingLocation()),
+                mapper.summarize(r.getSymptoms()), mapper.summarize(r.getConditions()),
+                text(r.getDistanceToHighway()), text(r.getDistanceToFactory()), text(r.getGridId()),
+                text(r.getLatitude()), text(r.getLongitude()), text(r.getGpsAccuracy()),
                 text(r.getRemarks())
         };
     }
@@ -101,21 +97,5 @@ public class ExportService {
 
     private String label(String value) {
         return value == null ? "" : value.replace('_', ' ');
-    }
-
-    private String cooking(SurveyRecord record) {
-        if ("OTHER".equals(record.getPrimaryCookingFuel()) && record.getOtherCookingFuel() != null
-                && !record.getOtherCookingFuel().isBlank()) {
-            return record.getOtherCookingFuel();
-        }
-        return label(record.getPrimaryCookingFuel());
-    }
-
-    private String cookingLocation(SurveyRecord record) {
-        if ("OTHER".equals(record.getCookingLocation()) && record.getOtherCookingLocation() != null
-                && !record.getOtherCookingLocation().isBlank()) {
-            return record.getOtherCookingLocation();
-        }
-        return label(record.getCookingLocation());
     }
 }

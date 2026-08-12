@@ -2,7 +2,7 @@
 
 Production-ready full-stack household data collection system for an air pollution and community health survey.
 
-The application supports JWT login, role-based survey access, PostgreSQL storage, dashboard summaries, survey CRUD, filtered record search, GPS capture, automatic risk scoring, and CSV/Excel export.
+The application supports JWT login, role-based survey access, PostgreSQL storage, dashboard summaries, survey CRUD, filtered record search, GPS capture, and CSV/Excel export. The survey form mirrors the field team's paper "AIR POLLUTION – COMMUNITY HEALTH SURVEY" instrument, including per-symptom/condition detail (hospital visit, IPD/OPD, missed school/work, days missed). See [REBUILD_NOTES.md](REBUILD_NOTES.md) for the history of that rebuild.
 Admins can also create surveyor accounts, reset passwords, change roles, and disable accounts. Every signed-in user can change their own password from the Account page.
 The frontend includes offline capture for new surveys: submissions made without a server connection are stored in IndexedDB and shown on the Pending Sync page until they are synced.
 
@@ -123,16 +123,15 @@ Filters supported by list and export:
 
 ```text
 studyArea
-district
-block
-village
-riskLevel
 fromDate
 toDate
 cookingFuel
-visitedHospital
 symptom
 ```
+
+`symptom` matches against the fixed symptom catalog (see `SurveyCatalog.SYMPTOM_KEYS`
+in the backend, e.g. `DRY_COUGH`, `WHEEZING`) and returns records where that symptom
+is marked present.
 
 Dashboard:
 
@@ -146,7 +145,7 @@ Export:
 Example:
 
 ```text
-/api/export/surveys.xlsx?studyArea=BYRNIHAT&riskLevel=HIGH
+/api/export/surveys.xlsx?studyArea=BYRNIHAT&cookingFuel=WOOD
 ```
 
 ## Roles
@@ -156,27 +155,10 @@ Admin can also manage user accounts.
 
 Surveyor can add surveys, view submitted records created by their login, and edit those records.
 
-## Risk Scoring
-
-Risk score is previewed on the frontend and recalculated on the backend before saving. Stored fields:
-
-- `exposureRiskScore`
-- `symptomScore`
-- `vulnerabilityScore`
-- `totalRiskScore`
-- `riskLevel`
-
-Risk levels:
-
-- `0-7`: LOW
-- `8-15`: MODERATE
-- `16-25`: HIGH
-- `26+`: VERY_HIGH
-
 ## Data Quality And Privacy
 
 - Use standardized enum-like values for filters and exports.
-- Required fields are enforced on both frontend and backend for location, household size, exposure, core health flags, and conditional "OTHER" answers.
+- Required fields are enforced on both frontend and backend for survey/demographic core fields and conditional "OTHER" answers.
 - Do not expose database credentials in the frontend.
 - Do not commit real `.env` files.
 - The app displays a privacy note on login.

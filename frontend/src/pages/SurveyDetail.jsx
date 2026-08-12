@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api from '../api/client';
+import HealthItemTable from '../components/HealthItemTable';
 import { labelize, sections } from '../utils/surveyConfig';
 
 export default function SurveyDetail() {
@@ -30,16 +31,17 @@ export default function SurveyDetail() {
         </div>
       </header>
 
-      <section className="risk-preview detail-risk">
-        <div><span>Exposure</span><strong>{record.exposureRiskScore}</strong></div>
-        <div><span>Symptoms</span><strong>{record.symptomScore}</strong></div>
-        <div><span>Vulnerability</span><strong>{record.vulnerabilityScore}</strong></div>
-        <div className={`risk-pill ${record.riskLevel?.toLowerCase()}`}><span>Total</span><strong>{record.totalRiskScore} - {labelize(record.riskLevel || '')}</strong></div>
-      </section>
-
       {sections.map((section) => (
         <section className="detail-card" key={section.title}>
           <h2>{section.title}</h2>
+          {section.type === 'healthTable' && (
+            <HealthItemTable
+              catalog={section.catalog}
+              items={record[section.catalogKey] || []}
+              mode={section.catalog ? 'catalog' : 'freeform'}
+              readOnly
+            />
+          )}
           <div className="detail-grid">
             {section.fields.map((field) => (
               <div key={field.name}>

@@ -16,22 +16,14 @@ import {
 const palette = ['#2563eb', '#0f766e', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#65a30d', '#c2410c'];
 
 const namedColors = {
-  LOW: '#16a34a',
-  MODERATE: '#d97706',
-  HIGH: '#dc2626',
-  VERY_HIGH: '#7f1d1d',
   YES: '#2563eb',
   NO: '#94a3b8',
   TRUE: '#2563eb',
   FALSE: '#94a3b8',
-  LPG: '#2563eb',
-  FIREWOOD: '#c2410c',
-  COAL: '#475569',
-  KEROSENE: '#d97706',
-  ELECTRICITY: '#0891b2',
   GAS: '#2563eb',
   WOOD: '#c2410c',
-  BOTH: '#7c3aed'
+  COAL: '#475569',
+  ELECTRICITY: '#0891b2'
 };
 
 export default function ChartPanel({ title, data = {}, type = 'bar' }) {

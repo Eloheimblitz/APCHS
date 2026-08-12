@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import FormField from './FormField';
-import { ageGroup } from '../utils/risk';
-import { defaultSurvey, locationDefaultsForStudyArea, sections } from '../utils/surveyConfig';
+import HealthItemTable from './HealthItemTable';
+import { defaultSurvey, sections } from '../utils/surveyConfig';
 
 export default function SurveyForm({ initialValues = {}, lockedFields = [], onSubmit, submitLabel = 'Save survey', loading = false }) {
   const [values, setValues] = useState({ ...defaultSurvey, ...initialValues });
@@ -11,13 +11,12 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
   const [validationErrors, setValidationErrors] = useState([]);
 
   function update(name, value) {
-    setValues((current) => {
-      if (name === 'studyArea') {
-        return { ...current, [name]: value, ...locationDefaultsForStudyArea(value) };
-      }
-      return { ...current, [name]: value };
-    });
+    setValues((current) => ({ ...current, [name]: value }));
     setValidationErrors([]);
+  }
+
+  function updateHealthItems(name, items) {
+    setValues((current) => ({ ...current, [name]: items }));
   }
 
   function visible(field) {
@@ -83,7 +82,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
       setActiveSection(missing[0].sectionIndex);
       return;
     }
-    onSubmit({ ...values, ageGroup: ageGroup(values.age) });
+    onSubmit(values);
   }
 
   const section = sections[activeSection];
@@ -131,6 +130,14 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
               {validationErrors.length > 6 && <li>{validationErrors.length - 6} more required fields</li>}
             </ul>
           </div>
+        )}
+        {section.type === 'healthTable' && (
+          <HealthItemTable
+            catalog={section.catalog}
+            items={values[section.catalogKey] || []}
+            onChange={(items) => updateHealthItems(section.catalogKey, items)}
+            mode={section.catalog ? 'catalog' : 'freeform'}
+          />
         )}
         <div className="form-grid">
           {section.fields.filter(visible).map((field) => (
