@@ -977,7 +977,8 @@ tbody tr:nth-child(even) {
 
 @media (max-width: 860px) {
   .app-shell {
-    grid-template-columns: 1fr;
+    display: block;
+    min-height: 0;
   }
 
   .mobile-topbar {
