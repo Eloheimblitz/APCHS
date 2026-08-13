@@ -19,9 +19,7 @@ services:
       - key: JPA_DDL_AUTO
         value: update
       - key: SEED_DEMO_USERS
-        value: true # TEMPORARY: log in as admin/admin123 once deployed, create your
-        # real admin account from the Users page, disable the demo accounts, then
-        # flip this back to false and redeploy. See REBUILD_NOTES.md.
+        value: false
 
 databases:
   - name: air-pollution-survey-db

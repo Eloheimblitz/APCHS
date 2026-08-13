@@ -258,3 +258,24 @@ on the backend has to be set manually (`sync: false` in the blueprint)
 once the Vercel URL is known, then `VITE_API_BASE_URL` on the frontend
 once the Render URL is known — a two-way circle-back, also already
 documented in the README.
+
+### Deploy log
+
+- Backend deployed at `https://air-pollution-survey-api.onrender.com`,
+  frontend at `https://apchs.vercel.app`, both on free tiers.
+- First backend deploy failed at startup with a Hibernate
+  `Unable to determine Dialect without JDBC metadata` error. Root cause:
+  Render's internal Postgres connection string omits the port (e.g.
+  `postgresql://user:pass@dpg-xxxxx-a/dbname`, defaulting to 5432
+  implicitly), but `DatabaseUrlNormalizer.java` blindly used
+  `uri.getPort()` — which returns `-1` when a URI has no explicit port —
+  producing an invalid `jdbc:postgresql://host:-1/db` URL. Fixed by
+  defaulting to port 5432 when `uri.getPort() == -1`. This path was never
+  exercised locally since local dev always supplies an explicit port.
+- The bootstrap sequence above was completed: real admin account created,
+  demo accounts disabled, `SEED_DEMO_USERS` reverted to `false` and
+  redeployed.
+- Both services are on free tiers for now, meaning the backend sleeps
+  after 15 minutes of inactivity (cold start ~30-50s on the next
+  request). Upgrading to a paid Render plan (so it stays always-on) is a
+  deferred decision, not yet done.
