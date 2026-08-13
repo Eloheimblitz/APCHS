@@ -299,6 +299,26 @@ textarea {
   height: 46px;
   justify-content: center;
   width: 46px;
+  padding: 7px;
+}
+
+.login-brand-mark img {
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.brand-group {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.brand-logo {
+  flex-shrink: 0;
+  height: 36px;
+  object-fit: contain;
+  width: 36px;
 }
 
 .login-brand-panel h2 {

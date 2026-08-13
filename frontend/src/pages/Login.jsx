@@ -34,7 +34,7 @@ export default function Login() {
       <section className="login-panel">
         <div className="login-brand-panel">
           <div>
-            <span className="login-brand-mark">A</span>
+            <span className="login-brand-mark"><img src="/logo.png" alt="" /></span>
           </div>
           <div>
             <p className="eyebrow" style={{ color: 'rgba(255,255,255,0.78)' }}>Community Health Survey</p>

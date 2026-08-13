@@ -27,9 +27,12 @@ export default function AppLayout() {
     return (
       <div className="field-shell">
         <header className="field-topbar">
-          <div>
-            <p className="eyebrow">APCHS Field</p>
-            <h1>Household Survey</h1>
+          <div className="brand-group">
+            <img src="/logo.png" alt="" className="brand-logo" />
+            <div>
+              <p className="eyebrow">APCHS Field</p>
+              <h1>Household Survey</h1>
+            </div>
           </div>
           <div className="field-user-panel">
             <span className={`connection-status ${online ? 'online' : 'offline'}`}>
@@ -55,9 +58,12 @@ export default function AppLayout() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div>
-          <p className="eyebrow">APCHS</p>
-          <h1>Air Pollution Health Survey</h1>
+        <div className="brand-group">
+          <img src="/logo.png" alt="" className="brand-logo" />
+          <div>
+            <p className="eyebrow">APCHS</p>
+            <h1>Air Pollution Health Survey</h1>
+          </div>
         </div>
         <nav>
           <NavLink to="/dashboard">Dashboard</NavLink>
