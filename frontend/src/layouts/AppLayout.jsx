@@ -7,6 +7,7 @@ export default function AppLayout() {
   const session = getSession();
   const isAdmin = session?.role === 'ADMIN';
   const [online, setOnline] = useState(navigator.onLine);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -57,7 +58,19 @@ export default function AppLayout() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <header className="mobile-topbar">
+        <div className="brand-group">
+          <img src="/logo.png" alt="" className="brand-logo" />
+          <strong>APCHS</strong>
+        </div>
+        <button type="button" className="menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} onClick={() => setMenuOpen((value) => !value)}>
+          <span />
+          <span />
+          <span />
+        </button>
+      </header>
+      {menuOpen && <div className="sidebar-overlay" onClick={() => setMenuOpen(false)} />}
+      <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
         <div className="brand-group">
           <img src="/logo.png" alt="" className="brand-logo" />
           <div>
@@ -65,7 +78,7 @@ export default function AppLayout() {
             <h1>Air Pollution Health Survey</h1>
           </div>
         </div>
-        <nav>
+        <nav onClick={() => setMenuOpen(false)}>
           <NavLink to="/dashboard">Dashboard</NavLink>
           <NavLink to="/surveys/new">Add Survey</NavLink>
           <NavLink to="/surveys">Records</NavLink>
