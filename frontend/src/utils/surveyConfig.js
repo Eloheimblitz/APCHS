@@ -89,7 +89,7 @@ export const sections = [
   {
     title: 'A. Survey Information',
     fields: [
-      { name: 'surveyId', label: 'Survey ID (optional - leave blank to auto-generate)' },
+      { name: 'surveyId', label: 'Survey ID', required: true },
       { name: 'surveyDate', label: 'Survey date', type: 'date', required: true },
       { name: 'surveyorId', label: 'Surveyor name', required: true },
       { name: 'consentObtained', label: 'Consent obtained', type: 'boolean', required: true },

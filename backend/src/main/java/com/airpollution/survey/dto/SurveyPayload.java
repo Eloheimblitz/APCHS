@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class SurveyPayload {
+    @NotBlank
     private String surveyId;
     @NotNull
     private LocalDate surveyDate;

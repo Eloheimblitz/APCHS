@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface SurveyRecordRepository extends JpaRepository<SurveyRecord, Long>, JpaSpecificationExecutor<SurveyRecord> {
-    long countBySurveyDateBetween(LocalDate start, LocalDate end);
     Optional<SurveyRecord> findTopBySurveyDateBetweenOrderByIdDesc(LocalDate start, LocalDate end);
     boolean existsBySurveyId(String surveyId);
 }

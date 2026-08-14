@@ -37,7 +37,7 @@ public class SurveyService {
         record.setSubmittedBy(authentication.getName());
         record.setCreatedAt(OffsetDateTime.now());
         record.setUpdatedAt(OffsetDateTime.now());
-        String surveyId = resolveSurveyId(request.getSurveyId(), request.getSurveyDate());
+        String surveyId = assignSurveyId(request.getSurveyId());
         record.setSurveyId(surveyId);
         record.setHouseholdId(surveyId.replace("APCHS", "HH"));
         return mapper.toResponse(repository.save(record));
@@ -122,23 +122,12 @@ public class SurveyService {
                 .anyMatch("ROLE_ADMIN"::equals);
     }
 
-    private String resolveSurveyId(String requestedId, LocalDate surveyDate) {
-        if (requestedId != null && !requestedId.isBlank()) {
-            String trimmed = requestedId.trim();
-            if (repository.existsBySurveyId(trimmed)) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + trimmed + "' is already in use");
-            }
-            return trimmed;
+    private String assignSurveyId(String requestedId) {
+        String trimmed = requestedId.trim();
+        if (repository.existsBySurveyId(trimmed)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + trimmed + "' is already in use");
         }
-        return nextSurveyId(surveyDate);
-    }
-
-    private String nextSurveyId(LocalDate date) {
-        int year = date == null ? LocalDate.now().getYear() : date.getYear();
-        LocalDate start = LocalDate.of(year, 1, 1);
-        LocalDate end = LocalDate.of(year, 12, 31);
-        long next = repository.countBySurveyDateBetween(start, end) + 1;
-        return "APCHS-" + year + "-" + String.format("%06d", next);
+        return trimmed;
     }
 
     private void assertCanAccess(SurveyRecord record, Authentication authentication) {
