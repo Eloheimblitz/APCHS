@@ -55,6 +55,10 @@ public class SurveyService {
             String symptom = filters.get("symptom");
             records = records.stream().filter(r -> hasSymptomPresent(r, symptom)).toList();
         }
+        if (hasValue(filters.get("cookingFuel"))) {
+            String fuel = filters.get("cookingFuel");
+            records = records.stream().filter(r -> r.getPrimaryCookingFuel() != null && r.getPrimaryCookingFuel().contains(fuel)).toList();
+        }
         return records;
     }
 
@@ -98,7 +102,6 @@ public class SurveyService {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             addEquals(predicates, cb, root.get("studyArea"), filters.get("studyArea"));
-            addEquals(predicates, cb, root.get("primaryCookingFuel"), filters.get("cookingFuel"));
             if (hasValue(filters.get("fromDate"))) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("surveyDate"), LocalDate.parse(filters.get("fromDate"))));
             }

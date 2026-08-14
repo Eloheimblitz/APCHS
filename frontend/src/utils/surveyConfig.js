@@ -77,7 +77,12 @@ export const defaultSurvey = {
   age: '',
   symptoms: SYMPTOM_CATALOG.map((item) => emptyHealthItem(item.key)),
   conditions: CONDITION_CATALOG.map((item) => emptyHealthItem(item.key)),
-  otherIssues: Array.from({ length: 5 }, emptyOtherIssue)
+  otherIssues: Array.from({ length: 5 }, emptyOtherIssue),
+  tobaccoUse: [],
+  occupation: [],
+  primaryCookingFuel: [],
+  woodCoalCookingLocation: [],
+  childBirthplace: []
 };
 
 export const sections = [
@@ -102,21 +107,21 @@ export const sections = [
       { name: 'age', label: 'Age', type: 'number', required: true },
       { name: 'durationOfStayAtStudyArea', label: 'Duration of stay at study area' },
       { name: 'gender', label: 'Gender', type: 'select', options: optionSets.gender, required: true },
-      { name: 'tobaccoUse', label: 'Tobacco', type: 'select', options: optionSets.tobaccoUse },
+      { name: 'tobaccoUse', label: 'Tobacco', type: 'multiselect', options: optionSets.tobaccoUse },
       { name: 'alcohol', label: 'Alcohol', type: 'boolean' },
       { name: 'ethnicity', label: 'Ethnicity', type: 'select', options: optionSets.ethnicity },
       { name: 'otherEthnicity', label: 'Other ethnicity', required: true, showWhen: { ethnicity: 'OTHER' } },
       { name: 'education', label: 'Education', type: 'select', options: optionSets.education },
       { name: 'otherEducation', label: 'Other education', required: true, showWhen: { education: 'OTHER' } },
-      { name: 'occupation', label: 'Occupation', type: 'select', options: optionSets.occupation },
+      { name: 'occupation', label: 'Occupation', type: 'multiselect', options: optionSets.occupation },
       { name: 'otherOccupation', label: 'Other occupation', required: true, showWhen: { occupation: 'OTHER' } }
     ]
   },
   {
     title: 'C. Cooking',
     fields: [
-      { name: 'primaryCookingFuel', label: 'Cooking', type: 'select', options: optionSets.cookingFuel, required: true },
-      { name: 'woodCoalCookingLocation', label: 'Wood/coal cooking location', type: 'select', options: optionSets.woodCoalCookingLocation }
+      { name: 'primaryCookingFuel', label: 'Cooking', type: 'multiselect', options: optionSets.cookingFuel, required: true },
+      { name: 'woodCoalCookingLocation', label: 'Wood/coal cooking location', type: 'multiselect', options: optionSets.woodCoalCookingLocation }
     ]
   },
   {
@@ -124,7 +129,7 @@ export const sections = [
     fields: [
       { name: 'hasChildren', label: 'Do you have children?', type: 'boolean' },
       { name: 'numberOfChildren', label: 'Number of children', type: 'number', showWhen: { hasChildren: true } },
-      { name: 'childBirthplace', label: 'Child birthplace', type: 'select', options: optionSets.childBirthplace },
+      { name: 'childBirthplace', label: 'Child birthplace', type: 'multiselect', options: optionSets.childBirthplace },
       { name: 'childVaccination', label: 'Child vaccination', type: 'select', options: optionSets.childVaccination },
       { name: 'respondentVaccination', label: 'Respondent vaccination', type: 'boolean' },
       { name: 'mhisSmartCard', label: 'MHIS/smart card', type: 'boolean' }

@@ -694,7 +694,13 @@ textarea {
 .form-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .field {
@@ -710,6 +716,36 @@ textarea {
 
 .field-wide {
   grid-column: 1 / -1;
+}
+
+.checkbox-group {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 0;
+  justify-content: space-between;
+  padding: 16px 20px;
+}
+
+.checkbox-option {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.checkbox-option input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  height: 18px;
+  min-height: 0;
+  width: 18px;
+}
+
+.checkbox-option span {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .sticky-actions {

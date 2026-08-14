@@ -59,6 +59,7 @@ export default function SurveyDetail() {
 function format(value) {
   if (value === true) return 'Yes';
   if (value === false) return 'No';
+  if (Array.isArray(value)) return value.length === 0 ? '-' : value.map(labelize).join(', ');
   if (value === null || value === undefined || value === '') return '-';
   return typeof value === 'string' ? labelize(value) : value;
 }

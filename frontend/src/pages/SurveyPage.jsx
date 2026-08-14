@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/client';
 import SurveyForm from '../components/SurveyForm';
-import { addPendingSurvey, isNetworkError } from '../utils/offlineStore';
+import { addPendingSurvey, getPendingSurvey, isNetworkError, updatePendingSurvey } from '../utils/offlineStore';
 import { getSession } from '../api/client';
 
 export default function SurveyPage({ mode }) {
@@ -18,12 +18,28 @@ export default function SurveyPage({ mode }) {
     if (mode === 'edit') {
       api.get(`/surveys/${id}`).then(({ data }) => setRecord(data)).catch(() => setError('Unable to load survey record.'));
     }
+    if (mode === 'edit-pending') {
+      getPendingSurvey(Number(id)).then((data) => {
+        if (!data) {
+          setError('Pending survey not found. It may have already synced or been removed.');
+          return;
+        }
+        setRecord(data.payload);
+      }).catch(() => setError('Unable to load pending survey.'));
+    }
   }, [id, mode]);
 
   async function save(values) {
     setLoading(true);
     setError('');
     setFieldErrors({});
+
+    if (mode === 'edit-pending') {
+      await updatePendingSurvey(Number(id), { payload: values, status: 'PENDING', error: '' });
+      navigate('/offline-queue', { state: { message: 'Pending survey updated.' } });
+      setLoading(false);
+      return;
+    }
 
     if (mode === 'create' && !navigator.onLine) {
       await addPendingSurvey(values, getSession()?.username || 'unknown');
@@ -50,14 +66,16 @@ export default function SurveyPage({ mode }) {
     }
   }
 
-  if (mode === 'edit' && !record && !error) return <div className="page"><p>Loading survey...</p></div>;
+  if ((mode === 'edit' || mode === 'edit-pending') && !record && !error) return <div className="page"><p>Loading survey...</p></div>;
+
+  const isEditMode = mode === 'edit' || mode === 'edit-pending';
 
   return (
     <div className="page">
       <header className="page-header">
         <div>
-          <p className="eyebrow">{mode === 'edit' ? 'Edit record' : 'New household survey'}</p>
-          <h1>{mode === 'edit' ? record?.surveyId : 'Add Survey'}</h1>
+          <p className="eyebrow">{mode === 'edit-pending' ? 'Edit pending offline survey' : isEditMode ? 'Edit record' : 'New household survey'}</p>
+          <h1>{mode === 'edit' ? record?.surveyId : mode === 'edit-pending' ? 'Pending Survey' : 'Add Survey'}</h1>
         </div>
       </header>
       {error && (
@@ -72,7 +90,9 @@ export default function SurveyPage({ mode }) {
           )}
         </div>
       )}
-      <SurveyForm initialValues={mode === 'edit' ? record || undefined : { surveyorId: session?.username || '' }} lockedFields={mode === 'create' ? ['surveyorId'] : []} onSubmit={save} loading={loading} submitLabel={mode === 'edit' ? 'Update survey' : 'Submit survey'} unlockAllSections={mode === 'edit'} />
+      {(mode !== 'edit-pending' || record) && (
+        <SurveyForm initialValues={isEditMode ? record || undefined : { surveyorId: session?.username || '' }} lockedFields={mode === 'create' ? ['surveyorId'] : []} onSubmit={save} loading={loading} submitLabel={isEditMode ? 'Update survey' : 'Submit survey'} unlockAllSections={isEditMode} />
+      )}
     </div>
   );
 }

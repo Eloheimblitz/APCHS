@@ -21,8 +21,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
   }
 
   function visible(field) {
-    if (!field.showWhen) return true;
-    return Object.entries(field.showWhen).every(([key, expected]) => values[key] === expected);
+    return isVisible(field, values);
   }
 
   async function captureGps() {
@@ -107,11 +106,18 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
     onSubmit(values);
   }
 
+  function preventImplicitSubmit(event) {
+    if (event.key !== 'Enter') return;
+    const tag = event.target.tagName;
+    if (tag === 'TEXTAREA' || tag === 'BUTTON') return;
+    event.preventDefault();
+  }
+
   const section = sections[activeSection];
   const progress = Math.round(((activeSection + 1) / sections.length) * 100);
 
   return (
-    <form className="survey-form" onSubmit={submit}>
+    <form className="survey-form" onSubmit={submit} onKeyDown={preventImplicitSubmit}>
       <div className="progress-card">
         <div>
           <strong>{section.title}</strong>
@@ -177,9 +183,9 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
       <div className="form-actions sticky-actions">
         <button type="button" className="secondary-button" disabled={activeSection === 0} onClick={() => goToSection(activeSection - 1)}>Previous</button>
         {activeSection < sections.length - 1 ? (
-          <button type="button" onClick={goNext}>Next</button>
+          <button key="next-button" type="button" onClick={goNext}>Next</button>
         ) : (
-          <button disabled={loading || values.consentObtained !== true}>{loading ? 'Saving...' : submitLabel}</button>
+          <button key="submit-button" type="submit" disabled={loading || values.consentObtained !== true}>{loading ? 'Saving...' : submitLabel}</button>
         )}
       </div>
     </form>
@@ -195,7 +201,8 @@ function requiredMissingInSection(section, sectionIndex, values) {
   section.fields.forEach((field) => {
     if (!field.required || !isVisible(field, values)) return;
     const value = values[field.name];
-    if (value === null || value === undefined || value === '') {
+    const isEmpty = value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0);
+    if (isEmpty) {
       missing.push({ sectionIndex, name: field.name, label: `${section.title}: ${field.label}` });
     }
   });
@@ -212,7 +219,10 @@ function requiredMissing(values) {
 
 function isVisible(field, values) {
   if (!field.showWhen) return true;
-  return Object.entries(field.showWhen).every(([key, expected]) => values[key] === expected);
+  return Object.entries(field.showWhen).every(([key, expected]) => {
+    const actual = values[key];
+    return Array.isArray(actual) ? actual.includes(expected) : actual === expected;
+  });
 }
 
 function getCurrentGpsPosition(options) {

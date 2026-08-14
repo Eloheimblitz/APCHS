@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import api from '../api/client';
 import { deletePendingSurvey, getPendingSurveys, updatePendingSurvey } from '../utils/offlineStore';
 import { labelize } from '../utils/surveyConfig';
@@ -105,6 +105,9 @@ export default function OfflineQueue() {
                   <td><span className={`sync-badge ${record.status.toLowerCase()}`}>{labelize(record.status)}</span></td>
                   <td>{record.error || '-'}</td>
                   <td className="row-actions">
+                    {record.status !== 'SYNCING' && (
+                      <Link className="action-button edit-action" to={`/offline-queue/${record.id}/edit`}>Edit</Link>
+                    )}
                     <button onClick={() => remove(record.id)}>Remove</button>
                   </td>
                 </tr>

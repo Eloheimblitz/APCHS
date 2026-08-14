@@ -5,6 +5,7 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.AssertFalse;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,23 +33,23 @@ public class SurveyPayload {
     private String durationOfStayAtStudyArea;
     @NotBlank
     private String gender;
-    private String tobaccoUse;
+    private List<String> tobaccoUse;
     private Boolean alcohol;
     private String ethnicity;
     private String otherEthnicity;
     private String education;
     private String otherEducation;
-    private String occupation;
+    private List<String> occupation;
     private String otherOccupation;
 
-    @NotBlank
-    private String primaryCookingFuel;
-    private String woodCoalCookingLocation;
+    @NotEmpty
+    private List<String> primaryCookingFuel;
+    private List<String> woodCoalCookingLocation;
 
     private Boolean hasChildren;
     @Min(0)
     private Integer numberOfChildren;
-    private String childBirthplace;
+    private List<String> childBirthplace;
     private String childVaccination;
     private Boolean respondentVaccination;
     private Boolean mhisSmartCard;
@@ -75,7 +76,7 @@ public class SurveyPayload {
 
     @AssertFalse(message = "Other occupation is required when occupation is OTHER")
     public boolean isOtherOccupationMissing() {
-        return "OTHER".equals(occupation) && isBlank(otherOccupation);
+        return occupation != null && occupation.contains("OTHER") && isBlank(otherOccupation);
     }
 
     private boolean isBlank(String value) {
@@ -108,8 +109,8 @@ public class SurveyPayload {
     public void setDurationOfStayAtStudyArea(String durationOfStayAtStudyArea) { this.durationOfStayAtStudyArea = durationOfStayAtStudyArea; }
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
-    public String getTobaccoUse() { return tobaccoUse; }
-    public void setTobaccoUse(String tobaccoUse) { this.tobaccoUse = tobaccoUse; }
+    public List<String> getTobaccoUse() { return tobaccoUse; }
+    public void setTobaccoUse(List<String> tobaccoUse) { this.tobaccoUse = tobaccoUse; }
     public Boolean getAlcohol() { return alcohol; }
     public void setAlcohol(Boolean alcohol) { this.alcohol = alcohol; }
     public String getEthnicity() { return ethnicity; }
@@ -120,20 +121,20 @@ public class SurveyPayload {
     public void setEducation(String education) { this.education = education; }
     public String getOtherEducation() { return otherEducation; }
     public void setOtherEducation(String otherEducation) { this.otherEducation = otherEducation; }
-    public String getOccupation() { return occupation; }
-    public void setOccupation(String occupation) { this.occupation = occupation; }
+    public List<String> getOccupation() { return occupation; }
+    public void setOccupation(List<String> occupation) { this.occupation = occupation; }
     public String getOtherOccupation() { return otherOccupation; }
     public void setOtherOccupation(String otherOccupation) { this.otherOccupation = otherOccupation; }
-    public String getPrimaryCookingFuel() { return primaryCookingFuel; }
-    public void setPrimaryCookingFuel(String primaryCookingFuel) { this.primaryCookingFuel = primaryCookingFuel; }
-    public String getWoodCoalCookingLocation() { return woodCoalCookingLocation; }
-    public void setWoodCoalCookingLocation(String woodCoalCookingLocation) { this.woodCoalCookingLocation = woodCoalCookingLocation; }
+    public List<String> getPrimaryCookingFuel() { return primaryCookingFuel; }
+    public void setPrimaryCookingFuel(List<String> primaryCookingFuel) { this.primaryCookingFuel = primaryCookingFuel; }
+    public List<String> getWoodCoalCookingLocation() { return woodCoalCookingLocation; }
+    public void setWoodCoalCookingLocation(List<String> woodCoalCookingLocation) { this.woodCoalCookingLocation = woodCoalCookingLocation; }
     public Boolean getHasChildren() { return hasChildren; }
     public void setHasChildren(Boolean hasChildren) { this.hasChildren = hasChildren; }
     public Integer getNumberOfChildren() { return numberOfChildren; }
     public void setNumberOfChildren(Integer numberOfChildren) { this.numberOfChildren = numberOfChildren; }
-    public String getChildBirthplace() { return childBirthplace; }
-    public void setChildBirthplace(String childBirthplace) { this.childBirthplace = childBirthplace; }
+    public List<String> getChildBirthplace() { return childBirthplace; }
+    public void setChildBirthplace(List<String> childBirthplace) { this.childBirthplace = childBirthplace; }
     public String getChildVaccination() { return childVaccination; }
     public void setChildVaccination(String childVaccination) { this.childVaccination = childVaccination; }
     public Boolean getRespondentVaccination() { return respondentVaccination; }

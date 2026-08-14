@@ -43,21 +43,31 @@ public class SurveyRecord {
     private Integer age;
     private String durationOfStayAtStudyArea;
     private String gender;
-    private String tobaccoUse;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> tobaccoUse;
     private Boolean alcohol;
     private String ethnicity;
     private String otherEthnicity;
     private String education;
     private String otherEducation;
-    private String occupation;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> occupation;
     private String otherOccupation;
 
-    private String primaryCookingFuel;
-    private String woodCoalCookingLocation;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> primaryCookingFuel;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> woodCoalCookingLocation;
 
     private Boolean hasChildren;
     private Integer numberOfChildren;
-    private String childBirthplace;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<String> childBirthplace;
     private String childVaccination;
     private Boolean respondentVaccination;
     private Boolean mhisSmartCard;
@@ -117,8 +127,8 @@ public class SurveyRecord {
     public void setDurationOfStayAtStudyArea(String durationOfStayAtStudyArea) { this.durationOfStayAtStudyArea = durationOfStayAtStudyArea; }
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
-    public String getTobaccoUse() { return tobaccoUse; }
-    public void setTobaccoUse(String tobaccoUse) { this.tobaccoUse = tobaccoUse; }
+    public List<String> getTobaccoUse() { return tobaccoUse; }
+    public void setTobaccoUse(List<String> tobaccoUse) { this.tobaccoUse = tobaccoUse; }
     public Boolean getAlcohol() { return alcohol; }
     public void setAlcohol(Boolean alcohol) { this.alcohol = alcohol; }
     public String getEthnicity() { return ethnicity; }
@@ -129,20 +139,20 @@ public class SurveyRecord {
     public void setEducation(String education) { this.education = education; }
     public String getOtherEducation() { return otherEducation; }
     public void setOtherEducation(String otherEducation) { this.otherEducation = otherEducation; }
-    public String getOccupation() { return occupation; }
-    public void setOccupation(String occupation) { this.occupation = occupation; }
+    public List<String> getOccupation() { return occupation; }
+    public void setOccupation(List<String> occupation) { this.occupation = occupation; }
     public String getOtherOccupation() { return otherOccupation; }
     public void setOtherOccupation(String otherOccupation) { this.otherOccupation = otherOccupation; }
-    public String getPrimaryCookingFuel() { return primaryCookingFuel; }
-    public void setPrimaryCookingFuel(String primaryCookingFuel) { this.primaryCookingFuel = primaryCookingFuel; }
-    public String getWoodCoalCookingLocation() { return woodCoalCookingLocation; }
-    public void setWoodCoalCookingLocation(String woodCoalCookingLocation) { this.woodCoalCookingLocation = woodCoalCookingLocation; }
+    public List<String> getPrimaryCookingFuel() { return primaryCookingFuel; }
+    public void setPrimaryCookingFuel(List<String> primaryCookingFuel) { this.primaryCookingFuel = primaryCookingFuel; }
+    public List<String> getWoodCoalCookingLocation() { return woodCoalCookingLocation; }
+    public void setWoodCoalCookingLocation(List<String> woodCoalCookingLocation) { this.woodCoalCookingLocation = woodCoalCookingLocation; }
     public Boolean getHasChildren() { return hasChildren; }
     public void setHasChildren(Boolean hasChildren) { this.hasChildren = hasChildren; }
     public Integer getNumberOfChildren() { return numberOfChildren; }
     public void setNumberOfChildren(Integer numberOfChildren) { this.numberOfChildren = numberOfChildren; }
-    public String getChildBirthplace() { return childBirthplace; }
-    public void setChildBirthplace(String childBirthplace) { this.childBirthplace = childBirthplace; }
+    public List<String> getChildBirthplace() { return childBirthplace; }
+    public void setChildBirthplace(List<String> childBirthplace) { this.childBirthplace = childBirthplace; }
     public String getChildVaccination() { return childVaccination; }
     public void setChildVaccination(String childVaccination) { this.childVaccination = childVaccination; }
     public Boolean getRespondentVaccination() { return respondentVaccination; }

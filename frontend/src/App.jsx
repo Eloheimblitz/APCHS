@@ -27,6 +27,7 @@ export default function App() {
           <Route path="/users" element={<AdminOnly><Users /></AdminOnly>} />
           <Route path="/account" element={<Account />} />
           <Route path="/offline-queue" element={<OfflineQueue />} />
+          <Route path="/offline-queue/:id/edit" element={<SurveyPage mode="edit-pending" />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />

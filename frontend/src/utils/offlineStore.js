@@ -69,6 +69,24 @@ export async function getPendingSurveys() {
   });
 }
 
+export async function getPendingSurvey(id) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.get(id);
+
+    request.onsuccess = () => {
+      db.close();
+      resolve(request.result || null);
+    };
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
+  });
+}
+
 export async function updatePendingSurvey(id, changes) {
   const db = await openDb();
   return new Promise((resolve, reject) => {

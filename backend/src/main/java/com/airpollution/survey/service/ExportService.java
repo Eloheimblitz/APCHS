@@ -123,11 +123,11 @@ public class ExportService {
                 label(r.getStudyArea()), text(r.getLatitude()), text(r.getLongitude()), text(r.getGpsAccuracy()),
                 text(r.getGridId()), text(r.getDistanceToHighway()), text(r.getDistanceToFactory()),
                 text(r.getAge()), text(r.getDurationOfStayAtStudyArea()), label(r.getGender()),
-                label(r.getTobaccoUse()), bool(r.getAlcohol()),
+                labelList(r.getTobaccoUse()), bool(r.getAlcohol()),
                 label(r.getEthnicity()), text(r.getOtherEthnicity()), label(r.getEducation()), text(r.getOtherEducation()),
-                label(r.getOccupation()), text(r.getOtherOccupation()),
-                label(r.getPrimaryCookingFuel()), label(r.getWoodCoalCookingLocation()),
-                bool(r.getHasChildren()), text(r.getNumberOfChildren()), label(r.getChildBirthplace()), label(r.getChildVaccination()),
+                labelList(r.getOccupation()), text(r.getOtherOccupation()),
+                labelList(r.getPrimaryCookingFuel()), labelList(r.getWoodCoalCookingLocation()),
+                bool(r.getHasChildren()), text(r.getNumberOfChildren()), labelList(r.getChildBirthplace()), label(r.getChildVaccination()),
                 bool(r.getRespondentVaccination()), bool(r.getMhisSmartCard()), text(r.getCancerType()), label(r.getFeverDuration()),
                 text(r.getRemarks())
         ));
@@ -178,5 +178,10 @@ public class ExportService {
 
     private String label(String value) {
         return value == null ? "" : value.replace('_', ' ');
+    }
+
+    private String labelList(List<String> values) {
+        if (values == null || values.isEmpty()) return "";
+        return values.stream().map(this::label).reduce((a, b) -> a + ", " + b).orElse("");
     }
 }

@@ -36,8 +36,8 @@ public class DashboardService {
         List<SurveyRecord> records = surveyService.findFiltered(Map.of(), authentication);
         long totalHouseholds = records.size();
         long studyAreas = records.stream().map(SurveyRecord::getStudyArea).filter(v -> v != null && !v.isBlank()).distinct().count();
-        long wood = records.stream().filter(r -> "WOOD".equals(r.getPrimaryCookingFuel())).count();
-        long smokers = records.stream().filter(r -> "SMOKING".equals(r.getTobaccoUse())).count();
+        long wood = records.stream().filter(r -> r.getPrimaryCookingFuel() != null && r.getPrimaryCookingFuel().contains("WOOD")).count();
+        long smokers = records.stream().filter(r -> r.getTobaccoUse() != null && r.getTobaccoUse().contains("SMOKING")).count();
         long respiratorySymptoms = records.stream().filter(this::hasRespiratorySymptoms).count();
         long hospitalVisits = records.stream().filter(this::hasAnyHospitalVisit).count();
         BigDecimal averageMissedDays = averageMissedDays(records);
@@ -51,7 +51,7 @@ public class DashboardService {
                 hospitalVisits,
                 averageMissedDays,
                 countBy(records, SurveyRecord::getStudyArea),
-                countBy(records, SurveyRecord::getPrimaryCookingFuel),
+                countByMulti(records, SurveyRecord::getPrimaryCookingFuel),
                 commonSymptoms(records),
                 records.stream().collect(Collectors.groupingBy(r -> hasAnyHospitalVisit(r) ? "Yes" : "No",
                         LinkedHashMap::new, Collectors.counting()))
@@ -61,6 +61,21 @@ public class DashboardService {
     private Map<String, Long> countBy(List<SurveyRecord> records, Function<SurveyRecord, String> getter) {
         return records.stream()
                 .collect(Collectors.groupingBy(r -> valueOrUnknown(getter.apply(r)), LinkedHashMap::new, Collectors.counting()));
+    }
+
+    private Map<String, Long> countByMulti(List<SurveyRecord> records, Function<SurveyRecord, List<String>> getter) {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        for (SurveyRecord record : records) {
+            List<String> values = getter.apply(record);
+            if (values == null || values.isEmpty()) {
+                counts.merge("UNKNOWN", 1L, Long::sum);
+                continue;
+            }
+            for (String value : values) {
+                counts.merge(valueOrUnknown(value), 1L, Long::sum);
+            }
+        }
+        return counts;
     }
 
     private Map<String, Long> commonSymptoms(List<SurveyRecord> records) {

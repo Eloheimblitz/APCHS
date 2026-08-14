@@ -30,6 +30,30 @@ export default function FormField({ field, value, onChange, disabled = false }) 
     );
   }
 
+  if (field.type === 'multiselect') {
+    const selected = Array.isArray(value) ? value : [];
+    function toggle(option) {
+      if (selected.includes(option)) {
+        onChange(selected.filter((item) => item !== option));
+      } else {
+        onChange([...selected, option]);
+      }
+    }
+    return (
+      <label className="field field-wide">
+        <span>{field.label}{field.required && ' *'}</span>
+        <div className="checkbox-group">
+          {options.map((option) => (
+            <label key={option} className="checkbox-option">
+              <input type="checkbox" checked={selected.includes(option)} onChange={() => toggle(option)} disabled={disabled} />
+              <span>{labelize(option)}</span>
+            </label>
+          ))}
+        </div>
+      </label>
+    );
+  }
+
   if (field.type === 'textarea') {
     return (
       <label className="field field-wide">
