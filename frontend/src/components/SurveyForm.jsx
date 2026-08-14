@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import FormField from './FormField';
 import HealthItemTable from './HealthItemTable';
+import SurveyIdField from './SurveyIdField';
 import { defaultSurvey, sections } from '../utils/surveyConfig';
 
 export default function SurveyForm({ initialValues = {}, lockedFields = [], onSubmit, submitLabel = 'Save survey', loading = false, unlockAllSections = false }) {
@@ -175,7 +176,11 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
         )}
         <div className="form-grid">
           {section.fields.filter(visible).map((field) => (
-            <FormField key={field.name} field={field} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} />
+            field.type === 'surveyIdNumber' ? (
+              <SurveyIdField key={field.name} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} required={field.required} />
+            ) : (
+              <FormField key={field.name} field={field} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} />
+            )
           ))}
         </div>
       </section>

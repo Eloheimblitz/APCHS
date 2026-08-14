@@ -11,6 +11,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -40,7 +41,24 @@ public class SurveyService {
         String surveyId = assignSurveyId(request.getSurveyId());
         record.setSurveyId(surveyId);
         record.setHouseholdId(surveyId.replace("APCHS", "HH"));
-        return mapper.toResponse(repository.save(record));
+        try {
+            return mapper.toResponse(repository.save(record));
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + surveyId + "' is already in use");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public String suggestNextSurveyId() {
+        int year = LocalDate.now().getYear();
+        String prefix = "APCHS-" + year + "-";
+        long next = repository.countBySurveyIdStartingWith(prefix) + 1;
+        String candidate = prefix + String.format("%06d", next);
+        while (repository.existsBySurveyId(candidate)) {
+            next++;
+            candidate = prefix + String.format("%06d", next);
+        }
+        return candidate;
     }
 
     @Transactional(readOnly = true)

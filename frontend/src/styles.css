@@ -714,6 +714,36 @@ textarea {
   font-weight: 700;
 }
 
+.survey-id-input {
+  align-items: center;
+  display: flex;
+  gap: 0;
+}
+
+.survey-id-prefix {
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  border-right: 0;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  height: 44px;
+  line-height: 42px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.survey-id-input input {
+  border-radius: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.survey-id-input .secondary-button {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  white-space: nowrap;
+}
+
 .field-wide {
   grid-column: 1 / -1;
 }
