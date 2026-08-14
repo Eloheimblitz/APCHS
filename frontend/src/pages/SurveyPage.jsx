@@ -91,7 +91,7 @@ export default function SurveyPage({ mode }) {
         </div>
       )}
       {(mode !== 'edit-pending' || record) && (
-        <SurveyForm initialValues={isEditMode ? record || undefined : { surveyorId: session?.username || '' }} lockedFields={mode === 'create' ? ['surveyorId'] : []} onSubmit={save} loading={loading} submitLabel={isEditMode ? 'Update survey' : 'Submit survey'} unlockAllSections={isEditMode} />
+        <SurveyForm initialValues={isEditMode ? record || undefined : { surveyorId: session?.username || '' }} lockedFields={mode === 'create' ? ['surveyorId'] : mode === 'edit' ? ['surveyId'] : []} onSubmit={save} loading={loading} submitLabel={isEditMode ? 'Update survey' : 'Submit survey'} unlockAllSections={isEditMode} />
       )}
     </div>
   );

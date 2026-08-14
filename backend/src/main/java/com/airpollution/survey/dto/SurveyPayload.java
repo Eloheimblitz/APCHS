@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class SurveyPayload {
+    private String surveyId;
     @NotNull
     private LocalDate surveyDate;
     @NotBlank
@@ -83,6 +84,8 @@ public class SurveyPayload {
         return value == null || value.isBlank();
     }
 
+    public String getSurveyId() { return surveyId; }
+    public void setSurveyId(String surveyId) { this.surveyId = surveyId; }
     public LocalDate getSurveyDate() { return surveyDate; }
     public void setSurveyDate(LocalDate surveyDate) { this.surveyDate = surveyDate; }
     public String getSurveyorId() { return surveyorId; }

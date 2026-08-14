@@ -37,8 +37,9 @@ public class SurveyService {
         record.setSubmittedBy(authentication.getName());
         record.setCreatedAt(OffsetDateTime.now());
         record.setUpdatedAt(OffsetDateTime.now());
-        record.setSurveyId(nextSurveyId(request.getSurveyDate()));
-        record.setHouseholdId(record.getSurveyId().replace("APCHS", "HH"));
+        String surveyId = resolveSurveyId(request.getSurveyId(), request.getSurveyDate());
+        record.setSurveyId(surveyId);
+        record.setHouseholdId(surveyId.replace("APCHS", "HH"));
         return mapper.toResponse(repository.save(record));
     }
 
@@ -119,6 +120,17 @@ public class SurveyService {
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch("ROLE_ADMIN"::equals);
+    }
+
+    private String resolveSurveyId(String requestedId, LocalDate surveyDate) {
+        if (requestedId != null && !requestedId.isBlank()) {
+            String trimmed = requestedId.trim();
+            if (repository.existsBySurveyId(trimmed)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + trimmed + "' is already in use");
+            }
+            return trimmed;
+        }
+        return nextSurveyId(surveyDate);
     }
 
     private String nextSurveyId(LocalDate date) {
