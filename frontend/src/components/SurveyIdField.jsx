@@ -3,7 +3,7 @@ import api from '../api/client';
 
 const PREFIX = `APCHS-${new Date().getFullYear()}-`;
 
-export default function SurveyIdField({ value, onChange, disabled = false, required = false, onDuplicateChange = () => {} }) {
+export default function SurveyIdField({ value, onChange, disabled = false, required = false, onDuplicateChange = () => {}, onCheckingChange = () => {} }) {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
@@ -31,6 +31,7 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
 
   async function checkDuplicate(surveyId) {
     setChecking(true);
+    onCheckingChange(true);
     try {
       const { data } = await api.get('/surveys/check-id', { params: { surveyId } });
       setDuplicate(data.exists);
@@ -39,6 +40,7 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
       // Ignore - offline or network error, fall back to server-side check on submit.
     } finally {
       setChecking(false);
+      onCheckingChange(false);
     }
   }
 
