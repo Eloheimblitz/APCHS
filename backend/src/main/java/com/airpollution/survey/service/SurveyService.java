@@ -62,6 +62,11 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
+    public boolean surveyIdExists(String surveyId) {
+        return repository.existsBySurveyId(surveyId.trim());
+    }
+
+    @Transactional(readOnly = true)
     public List<SurveyResponse> list(Map<String, String> filters, Authentication authentication) {
         List<SurveyRecord> records = findFiltered(filters, authentication);
         return records.stream().map(mapper::toResponse).toList();

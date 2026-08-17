@@ -11,6 +11,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
   const [gpsStatus, setGpsStatus] = useState('');
   const [gpsLoading, setGpsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
+  const [surveyIdTaken, setSurveyIdTaken] = useState(false);
 
   function update(name, value) {
     setValues((current) => ({ ...current, [name]: value }));
@@ -80,6 +81,10 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
       setValidationErrors(missing);
       return;
     }
+    if (surveyIdTaken) {
+      setValidationErrors([{ sectionIndex: activeSection, name: 'surveyId', label: 'Survey ID is already in use - enter a different number or use Suggest' }]);
+      return;
+    }
     setValidationErrors([]);
     setActiveSection((value) => {
       const next = value + 1;
@@ -102,6 +107,13 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
       setValidationErrors(missing);
       setActiveSection(missing[0].sectionIndex);
       setMaxUnlockedSection((max) => Math.max(max, missing[0].sectionIndex));
+      return;
+    }
+    if (surveyIdTaken) {
+      const surveyIdSection = sections.findIndex((s) => s.fields.some((f) => f.type === 'surveyIdNumber'));
+      setValidationErrors([{ sectionIndex: surveyIdSection, name: 'surveyId', label: 'Survey ID is already in use - enter a different number or use Suggest' }]);
+      setActiveSection(surveyIdSection);
+      setMaxUnlockedSection((max) => Math.max(max, surveyIdSection));
       return;
     }
     onSubmit(values);
@@ -177,7 +189,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
         <div className="form-grid">
           {section.fields.filter(visible).map((field) => (
             field.type === 'surveyIdNumber' ? (
-              <SurveyIdField key={field.name} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} required={field.required} />
+              <SurveyIdField key={field.name} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} required={field.required} onDuplicateChange={setSurveyIdTaken} />
             ) : (
               <FormField key={field.name} field={field} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} />
             )

@@ -37,6 +37,11 @@ public class SurveyController {
         return Map.of("surveyId", surveyService.suggestNextSurveyId());
     }
 
+    @GetMapping("/check-id")
+    public Map<String, Boolean> checkId(@RequestParam String surveyId) {
+        return Map.of("exists", surveyService.surveyIdExists(surveyId));
+    }
+
     @GetMapping
     public List<SurveyResponse> list(@RequestParam Map<String, String> filters, Authentication authentication) {
         return surveyService.list(filters, authentication);
