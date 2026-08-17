@@ -1,29 +1,18 @@
-function emptyItem(key) {
-  return {
-    key,
-    present: false,
-    visitedHospital: false,
-    hospitalNames: '',
-    ipd: false,
-    opd: false,
-    missedSchoolOrWork: false,
-    daysMissed: ''
-  };
-}
+import { emptyHealthItem } from '../utils/surveyConfig';
 
 export default function HealthItemTable({ catalog, items = [], onChange, mode = 'catalog', readOnly = false }) {
   const rows = mode === 'catalog'
     ? catalog.map((entry) => ({
         rowKey: entry.key,
         label: entry.label,
-        item: items.find((current) => current.key === entry.key) || emptyItem(entry.key)
+        item: items.find((current) => current.key === entry.key) || emptyHealthItem(entry.key)
       }))
     : items.map((item, index) => ({ rowKey: index, label: null, item }));
 
   function updateItem(rowKey, field, value) {
     if (mode === 'catalog') {
       const next = catalog.map((entry) => {
-        const current = items.find((row) => row.key === entry.key) || emptyItem(entry.key);
+        const current = items.find((row) => row.key === entry.key) || emptyHealthItem(entry.key);
         return entry.key === rowKey ? { ...current, [field]: value } : current;
       });
       onChange(next);

@@ -24,6 +24,16 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
     }
   }
 
+  function surveyIdBlockingError(sectionIndex) {
+    if (surveyIdChecking) {
+      return { sectionIndex, name: 'surveyId', label: 'Still checking Survey ID availability - wait a moment and try again' };
+    }
+    if (surveyIdTaken) {
+      return { sectionIndex, name: 'surveyId', label: 'Survey ID is already in use - enter a different number or use Suggest' };
+    }
+    return null;
+  }
+
   function update(name, value) {
     setValues((current) => ({ ...current, [name]: value }));
     setValidationErrors([]);
@@ -92,12 +102,9 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
       setValidationErrors(missing);
       return;
     }
-    if (activeSection === surveyIdSectionIndex && surveyIdChecking) {
-      setValidationErrors([{ sectionIndex: activeSection, name: 'surveyId', label: 'Still checking Survey ID availability - wait a moment and try again' }]);
-      return;
-    }
-    if (surveyIdTaken) {
-      setValidationErrors([{ sectionIndex: activeSection, name: 'surveyId', label: 'Survey ID is already in use - enter a different number or use Suggest' }]);
+    const blockingSurveyId = surveyIdBlockingError(activeSection);
+    if (blockingSurveyId) {
+      setValidationErrors([blockingSurveyId]);
       return;
     }
     setValidationErrors([]);
@@ -124,14 +131,9 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
       setMaxUnlockedSection((max) => Math.max(max, missing[0].sectionIndex));
       return;
     }
-    if (surveyIdChecking) {
-      setValidationErrors([{ sectionIndex: surveyIdSectionIndex, name: 'surveyId', label: 'Still checking Survey ID availability - wait a moment and try again' }]);
-      setActiveSection(surveyIdSectionIndex);
-      setMaxUnlockedSection((max) => Math.max(max, surveyIdSectionIndex));
-      return;
-    }
-    if (surveyIdTaken) {
-      setValidationErrors([{ sectionIndex: surveyIdSectionIndex, name: 'surveyId', label: 'Survey ID is already in use - enter a different number or use Suggest' }]);
+    const blockingSurveyId = surveyIdBlockingError(surveyIdSectionIndex);
+    if (blockingSurveyId) {
+      setValidationErrors([blockingSurveyId]);
       setActiveSection(surveyIdSectionIndex);
       setMaxUnlockedSection((max) => Math.max(max, surveyIdSectionIndex));
       return;

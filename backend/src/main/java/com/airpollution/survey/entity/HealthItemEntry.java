@@ -1,5 +1,7 @@
 package com.airpollution.survey.entity;
 
+import java.util.List;
+
 public class HealthItemEntry {
     private String key;
     private String description;
@@ -29,4 +31,14 @@ public class HealthItemEntry {
     public void setMissedSchoolOrWork(Boolean missedSchoolOrWork) { this.missedSchoolOrWork = missedSchoolOrWork; }
     public Integer getDaysMissed() { return daysMissed; }
     public void setDaysMissed(Integer daysMissed) { this.daysMissed = daysMissed; }
+
+    public static HealthItemEntry findByKey(List<HealthItemEntry> items, String key) {
+        if (items == null) return null;
+        return items.stream().filter(entry -> key.equals(entry.getKey())).findFirst().orElse(null);
+    }
+
+    public static boolean isPresent(List<HealthItemEntry> items, String key) {
+        HealthItemEntry entry = findByKey(items, key);
+        return entry != null && Boolean.TRUE.equals(entry.getPresent());
+    }
 }

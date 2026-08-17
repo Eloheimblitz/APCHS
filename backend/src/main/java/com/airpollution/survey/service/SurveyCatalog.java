@@ -15,20 +15,4 @@ public final class SurveyCatalog {
 
     private SurveyCatalog() {
     }
-
-    public static boolean isSymptomKey(String key) {
-        return contains(SYMPTOM_KEYS, key);
-    }
-
-    public static boolean isConditionKey(String key) {
-        return contains(CONDITION_KEYS, key);
-    }
-
-    private static boolean contains(String[] values, String key) {
-        if (key == null) return false;
-        for (String value : values) {
-            if (value.equals(key)) return true;
-        }
-        return false;
-    }
 }

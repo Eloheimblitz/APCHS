@@ -9,8 +9,10 @@ import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -52,7 +54,12 @@ public class SurveyService {
     public String suggestNextSurveyId() {
         int year = LocalDate.now().getYear();
         String prefix = "APCHS-" + year + "-";
-        long next = repository.countBySurveyIdStartingWith(prefix) + 1;
+        long next = repository.findSurveyIdsStartingWith(prefix).stream()
+                .map(id -> id.substring(prefix.length()))
+                .filter(suffix -> suffix.matches("\\d+"))
+                .mapToLong(Long::parseLong)
+                .max()
+                .orElse(0L) + 1;
         String candidate = prefix + String.format("%03d", next);
         while (repository.existsBySurveyId(candidate)) {
             next++;
@@ -76,20 +83,14 @@ public class SurveyService {
     public List<SurveyRecord> findFiltered(Map<String, String> filters, Authentication authentication) {
         List<SurveyRecord> records = repository.findAll(specification(filters, authentication));
         if (hasValue(filters.get("symptom"))) {
-            String symptom = filters.get("symptom");
-            records = records.stream().filter(r -> hasSymptomPresent(r, symptom)).toList();
+            Set<Long> matchingIds = new HashSet<>(repository.findIdsBySymptomPresent(filters.get("symptom")));
+            records = records.stream().filter(r -> matchingIds.contains(r.getId())).toList();
         }
         if (hasValue(filters.get("cookingFuel"))) {
-            String fuel = filters.get("cookingFuel");
-            records = records.stream().filter(r -> r.getPrimaryCookingFuel() != null && r.getPrimaryCookingFuel().contains(fuel)).toList();
+            Set<Long> matchingIds = new HashSet<>(repository.findIdsByCookingFuel(filters.get("cookingFuel")));
+            records = records.stream().filter(r -> matchingIds.contains(r.getId())).toList();
         }
         return records;
-    }
-
-    private boolean hasSymptomPresent(SurveyRecord record, String symptomKey) {
-        if (record.getSymptoms() == null) return false;
-        return record.getSymptoms().stream()
-                .anyMatch(entry -> symptomKey.equals(entry.getKey()) && Boolean.TRUE.equals(entry.getPresent()));
     }
 
     @Transactional(readOnly = true)

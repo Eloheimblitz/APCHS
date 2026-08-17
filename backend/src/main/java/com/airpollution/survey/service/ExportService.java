@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -132,11 +133,13 @@ public class ExportService {
                 text(r.getRemarks())
         ));
 
+        Map<String, HealthItemEntry> symptomsByKey = byKey(r.getSymptoms());
+        Map<String, HealthItemEntry> conditionsByKey = byKey(r.getConditions());
         for (String key : SurveyCatalog.SYMPTOM_KEYS) {
-            appendItem(values, findByKey(r.getSymptoms(), key));
+            appendItem(values, symptomsByKey.get(key));
         }
         for (String key : SurveyCatalog.CONDITION_KEYS) {
-            appendItem(values, findByKey(r.getConditions(), key));
+            appendItem(values, conditionsByKey.get(key));
         }
         List<HealthItemEntry> otherIssues = r.getOtherIssues();
         for (int i = 0; i < OTHER_ISSUE_SLOTS; i++) {
@@ -162,9 +165,9 @@ public class ExportService {
         values.add(item == null ? "" : text(item.getDaysMissed()));
     }
 
-    private HealthItemEntry findByKey(List<HealthItemEntry> items, String key) {
-        if (items == null) return null;
-        return items.stream().filter(entry -> key.equals(entry.getKey())).findFirst().orElse(null);
+    private Map<String, HealthItemEntry> byKey(List<HealthItemEntry> items) {
+        if (items == null) return Map.of();
+        return items.stream().collect(Collectors.toMap(HealthItemEntry::getKey, entry -> entry, (a, b) -> a));
     }
 
     private String text(Object value) {
@@ -182,6 +185,6 @@ public class ExportService {
 
     private String labelList(List<String> values) {
         if (values == null || values.isEmpty()) return "";
-        return values.stream().map(this::label).reduce((a, b) -> a + ", " + b).orElse("");
+        return values.stream().map(this::label).collect(Collectors.joining(", "));
     }
 }

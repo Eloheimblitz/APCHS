@@ -44,7 +44,7 @@ export const CONDITION_CATALOG = [
   { key: 'CANCER', label: 'Cancer' }
 ];
 
-function emptyHealthItem(key) {
+export function emptyHealthItem(key) {
   return {
     key,
     present: false,
