@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api from '../api/client';
 import HealthItemTable from '../components/HealthItemTable';
-import { labelize, sections } from '../utils/surveyConfig';
+import { labelize, labelizeList, sections } from '../utils/surveyConfig';
 
 export default function SurveyDetail() {
   const { id } = useParams();
@@ -59,7 +59,7 @@ export default function SurveyDetail() {
 function format(value) {
   if (value === true) return 'Yes';
   if (value === false) return 'No';
-  if (Array.isArray(value)) return value.length === 0 ? '-' : value.map(labelize).join(', ');
+  if (Array.isArray(value)) return labelizeList(value);
   if (value === null || value === undefined || value === '') return '-';
   return typeof value === 'string' ? labelize(value) : value;
 }

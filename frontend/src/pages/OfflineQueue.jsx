@@ -101,7 +101,7 @@ export default function OfflineQueue() {
                   <td>{new Date(record.createdAt).toLocaleString()}</td>
                   <td>{record.username}</td>
                   <td>{labelize(record.payload.studyArea || '')}</td>
-                  <td>{record.payload.age || '-'} / {labelize(record.payload.gender || '') || '-'}</td>
+                  <td>{record.payload.age ?? '-'} / {labelize(record.payload.gender || '') || '-'}</td>
                   <td><span className={`sync-badge ${record.status.toLowerCase()}`}>{labelize(record.status)}</span></td>
                   <td>{record.error || '-'}</td>
                   <td className="row-actions">

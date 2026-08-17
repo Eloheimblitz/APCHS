@@ -172,3 +172,8 @@ export function labelize(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
     .replace(/\bBp\b/g, 'BP');
 }
+
+export function labelizeList(values) {
+  if (!Array.isArray(values) || values.length === 0) return '-';
+  return values.map(labelize).join(', ');
+}

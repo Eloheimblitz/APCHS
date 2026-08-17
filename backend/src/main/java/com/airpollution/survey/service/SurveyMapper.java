@@ -54,7 +54,8 @@ public class SurveyMapper {
         for (String part : parts) {
             if (part.isEmpty()) continue;
             if (!builder.isEmpty()) builder.append(' ');
-            builder.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+            String labelled = "bp".equals(part) ? "BP" : Character.toUpperCase(part.charAt(0)) + part.substring(1);
+            builder.append(labelled);
         }
         return builder.toString();
     }

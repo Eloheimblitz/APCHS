@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import api from '../api/client';
 
-const PREFIX = `APCHS-${new Date().getFullYear()}-`;
+const CURRENT_YEAR_PREFIX = `APCHS-${new Date().getFullYear()}-`;
+const PREFIX_PATTERN = /^(APCHS-\d{4}-)/;
 
 export default function SurveyIdField({ value, onChange, disabled = false, required = false, onDuplicateChange = () => {}, onCheckingChange = () => {} }) {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
-  const numberPart = value && value.startsWith(PREFIX) ? value.slice(PREFIX.length) : '';
+  const requestIdRef = useRef(0);
+
+  const existingPrefixMatch = value && value.match(PREFIX_PATTERN);
+  const prefix = existingPrefixMatch ? existingPrefixMatch[1] : CURRENT_YEAR_PREFIX;
+  const numberPart = existingPrefixMatch ? value.slice(prefix.length) : '';
 
   function handleNumberChange(raw) {
     const digitsOnly = raw.replace(/\D/g, '');
@@ -17,35 +22,41 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
       onChange('');
       return;
     }
-    onChange(`${PREFIX}${digitsOnly}`);
+    onChange(`${prefix}${digitsOnly}`);
   }
 
   async function handleNumberBlur() {
     if (!numberPart) return;
     const padded = numberPart.padStart(3, '0');
+    const paddedValue = `${prefix}${padded}`;
     if (padded !== numberPart) {
-      onChange(`${PREFIX}${padded}`);
+      onChange(paddedValue);
     }
-    await checkDuplicate(`${PREFIX}${padded}`);
+    await checkDuplicate(paddedValue);
   }
 
   async function checkDuplicate(surveyId) {
+    const requestId = ++requestIdRef.current;
     setChecking(true);
     onCheckingChange(true);
     try {
       const { data } = await api.get('/surveys/check-id', { params: { surveyId } });
+      if (requestIdRef.current !== requestId) return;
       setDuplicate(data.exists);
       onDuplicateChange(data.exists);
     } catch {
       // Ignore - offline or network error, fall back to server-side check on submit.
     } finally {
-      setChecking(false);
-      onCheckingChange(false);
+      if (requestIdRef.current === requestId) {
+        setChecking(false);
+        onCheckingChange(false);
+      }
     }
   }
 
   async function suggest() {
     setLoading(true);
+    requestIdRef.current++;
     setDuplicate(false);
     onDuplicateChange(false);
     try {
@@ -62,7 +73,7 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
     <label className="field">
       <span>Survey ID{required && ' *'}</span>
       <div className="survey-id-input">
-        <span className="survey-id-prefix">{PREFIX}</span>
+        <span className="survey-id-prefix">{prefix}</span>
         <input
           type="text"
           inputMode="numeric"

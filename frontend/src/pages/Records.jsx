@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { downloadBlob, getSession } from '../api/client';
-import { labelize, optionSets } from '../utils/surveyConfig';
+import { labelize, labelizeList, optionSets } from '../utils/surveyConfig';
 
 const emptyFilters = {
   fromDate: '',
@@ -101,8 +101,8 @@ export default function Records() {
                 </div>
               </div>
               <div className="record-card-grid">
-                <span>Age/Gender</span><strong>{record.age || '-'} / {labelize(record.gender || '') || '-'}</strong>
-                <span>Cooking</span><strong>{labelize(record.primaryCookingFuel || '') || '-'}</strong>
+                <span>Age/Gender</span><strong>{record.age ?? '-'} / {labelize(record.gender || '') || '-'}</strong>
+                <span>Cooking</span><strong>{labelizeList(record.primaryCookingFuel)}</strong>
                 <span>Symptoms</span><strong>{record.mainSymptomsSummary}</strong>
               </div>
               <div className="row-actions">
@@ -137,7 +137,7 @@ export default function Records() {
                   <td>{labelize(record.studyArea || '')}</td>
                   <td>{record.age}</td>
                   <td>{labelize(record.gender || '')}</td>
-                  <td>{labelize(record.primaryCookingFuel || '')}</td>
+                  <td>{labelizeList(record.primaryCookingFuel)}</td>
                   <td>{record.mainSymptomsSummary}</td>
                   <td className="actions-cell">
                     <div className="row-actions">
