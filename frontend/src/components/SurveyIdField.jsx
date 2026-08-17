@@ -13,7 +13,7 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
       onChange('');
       return;
     }
-    onChange(`${PREFIX}${digitsOnly.padStart(6, '0')}`);
+    onChange(`${PREFIX}${digitsOnly.padStart(3, '0')}`);
   }
 
   async function suggest() {
@@ -38,7 +38,7 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
           inputMode="numeric"
           value={numberPart}
           onChange={(e) => handleNumberChange(e.target.value)}
-          placeholder="000001"
+          placeholder="001"
           disabled={disabled}
           required={required}
         />

@@ -53,10 +53,10 @@ public class SurveyService {
         int year = LocalDate.now().getYear();
         String prefix = "APCHS-" + year + "-";
         long next = repository.countBySurveyIdStartingWith(prefix) + 1;
-        String candidate = prefix + String.format("%06d", next);
+        String candidate = prefix + String.format("%03d", next);
         while (repository.existsBySurveyId(candidate)) {
             next++;
-            candidate = prefix + String.format("%06d", next);
+            candidate = prefix + String.format("%03d", next);
         }
         return candidate;
     }
