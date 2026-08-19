@@ -70,8 +70,8 @@ export default function Users() {
 
   async function resetPassword(user) {
     const password = passwords[user.id];
-    if (!password || password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (!password || password.length < 8) {
+      setError('Password must be at least 8 characters.');
       return;
     }
     await updateUser(user.id, { password });
@@ -104,7 +104,7 @@ export default function Users() {
           </label>
           <label className="field">
             <span>Password</span>
-            <input type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} minLength={6} required />
+            <input type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} minLength={8} required />
           </label>
           <label className="field">
             <span>Role</span>

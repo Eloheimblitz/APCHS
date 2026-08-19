@@ -81,7 +81,7 @@ export default function Account() {
                 type="password"
                 value={form.newPassword}
                 onChange={(event) => setForm({ ...form, newPassword: event.target.value })}
-                minLength={6}
+                minLength={8}
                 required
               />
             </label>
@@ -91,7 +91,7 @@ export default function Account() {
                 type="password"
                 value={form.confirmPassword}
                 onChange={(event) => setForm({ ...form, confirmPassword: event.target.value })}
-                minLength={6}
+                minLength={8}
                 required
               />
             </label>

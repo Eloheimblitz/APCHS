@@ -5,6 +5,6 @@ import jakarta.validation.constraints.Size;
 public record UserUpdateRequest(
         String role,
         Boolean enabled,
-        @Size(min = 6, message = "Password must be at least 6 characters") String password
+        @Size(min = 8, message = "Password must be at least 8 characters") String password
 ) {
 }
