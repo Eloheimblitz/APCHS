@@ -12,7 +12,6 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
   const [gpsLoading, setGpsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState([]);
   const [surveyIdTaken, setSurveyIdTaken] = useState(false);
-  const [surveyIdChecking, setSurveyIdChecking] = useState(false);
   const surveyIdSectionIndex = sections.findIndex((s) => s.fields.some((f) => f.type === 'surveyIdNumber'));
 
   function handleSurveyIdDuplicate(taken) {
@@ -25,9 +24,6 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
   }
 
   function surveyIdBlockingError(sectionIndex) {
-    if (surveyIdChecking) {
-      return { sectionIndex, name: 'surveyId', label: 'Still checking Survey ID availability - wait a moment and try again' };
-    }
     if (surveyIdTaken) {
       return { sectionIndex, name: 'surveyId', label: 'Survey ID is already in use - check the physical form and enter the correct number' };
     }
@@ -211,7 +207,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
         <div className="form-grid">
           {section.fields.filter(visible).map((field) => (
             field.type === 'surveyIdNumber' ? (
-              <SurveyIdField key={field.name} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} required={field.required} onDuplicateChange={handleSurveyIdDuplicate} onCheckingChange={setSurveyIdChecking} />
+              <SurveyIdField key={field.name} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} required={field.required} onDuplicateChange={handleSurveyIdDuplicate} />
             ) : (
               <FormField key={field.name} field={field} value={values[field.name]} onChange={(value) => update(field.name, value)} disabled={isLocked(field, lockedFields)} />
             )

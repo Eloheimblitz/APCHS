@@ -4,7 +4,7 @@ import api from '../api/client';
 const CURRENT_YEAR_PREFIX = `APCHS-${new Date().getFullYear()}-`;
 const PREFIX_PATTERN = /^(APCHS-\d{4}-)/;
 
-export default function SurveyIdField({ value, onChange, disabled = false, required = false, onDuplicateChange = () => {}, onCheckingChange = () => {} }) {
+export default function SurveyIdField({ value, onChange, disabled = false, required = false, onDuplicateChange = () => {} }) {
   const [checking, setChecking] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
   const requestIdRef = useRef(0);
@@ -37,7 +37,6 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
   async function checkDuplicate(surveyId) {
     const requestId = ++requestIdRef.current;
     setChecking(true);
-    onCheckingChange(true);
     try {
       const { data } = await api.get('/surveys/check-id', { params: { surveyId }, timeout: 8000 });
       if (requestIdRef.current !== requestId) return;
@@ -48,7 +47,6 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
     } finally {
       if (requestIdRef.current === requestId) {
         setChecking(false);
-        onCheckingChange(false);
       }
     }
   }
