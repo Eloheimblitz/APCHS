@@ -58,6 +58,9 @@ public class SurveyPayload {
 
     private List<HealthItemEntry> conditions;
     private String cancerType;
+    private Boolean worriedAboutAirPollution;
+    private List<String> airPollutionConcerns;
+    private String otherAirPollutionConcern;
 
     private List<HealthItemEntry> symptoms;
     private String feverDuration;
@@ -149,6 +152,12 @@ public class SurveyPayload {
     public void setConditions(List<HealthItemEntry> conditions) { this.conditions = conditions; }
     public String getCancerType() { return cancerType; }
     public void setCancerType(String cancerType) { this.cancerType = cancerType; }
+    public Boolean getWorriedAboutAirPollution() { return worriedAboutAirPollution; }
+    public void setWorriedAboutAirPollution(Boolean worriedAboutAirPollution) { this.worriedAboutAirPollution = worriedAboutAirPollution; }
+    public List<String> getAirPollutionConcerns() { return airPollutionConcerns; }
+    public void setAirPollutionConcerns(List<String> airPollutionConcerns) { this.airPollutionConcerns = airPollutionConcerns; }
+    public String getOtherAirPollutionConcern() { return otherAirPollutionConcern; }
+    public void setOtherAirPollutionConcern(String otherAirPollutionConcern) { this.otherAirPollutionConcern = otherAirPollutionConcern; }
     public List<HealthItemEntry> getSymptoms() { return symptoms; }
     public void setSymptoms(List<HealthItemEntry> symptoms) { this.symptoms = symptoms; }
     public String getFeverDuration() { return feverDuration; }

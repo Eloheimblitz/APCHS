@@ -13,12 +13,18 @@ export const optionSets = {
   woodCoalCookingLocation: ['IN', 'OUT', 'NA'],
   childBirthplace: ['HOME', 'HOSPITAL', 'NA'],
   childVaccination: ['YES', 'NO', 'NA'],
-  feverDuration: ['LESS_THAN_5_DAYS', 'MORE_THAN_5_DAYS', 'NA']
+  feverDuration: ['LESS_THAN_5_DAYS', 'MORE_THAN_5_DAYS', 'NA'],
+  airPollutionConcerns: ['OWN_HEALTH', 'CHILDRENS_HEALTH', 'OTHER_FAMILY_HEALTH', 'MISSING_WORK_SCHOOL', 'MEDICAL_EXPENSES', 'OTHER']
 };
 
 export const SYMPTOM_CATALOG = [
   { key: 'HEADACHE', label: 'Headache' },
-  { key: 'EYE_IRRITATION', label: 'Eye Irritation' },
+  { key: 'EYE_ITCHING', label: 'Eye Itching' },
+  { key: 'EYE_BURNING', label: 'Eye Burning' },
+  { key: 'RED_EYES', label: 'Red Eyes' },
+  { key: 'DRY_EYES', label: 'Dry Eyes' },
+  { key: 'WATERY_EYES', label: 'Watery Eyes' },
+  { key: 'BLURRED_VISION', label: 'Blurred Vision' },
   { key: 'RHINITIS', label: 'Rhinitis' },
   { key: 'SNEEZING', label: 'Sneezing' },
   { key: 'SINUSITIS', label: 'Sinusitis' },
@@ -82,7 +88,8 @@ export const defaultSurvey = {
   occupation: [],
   primaryCookingFuel: [],
   woodCoalCookingLocation: [],
-  childBirthplace: []
+  childBirthplace: [],
+  airPollutionConcerns: []
 };
 
 export const sections = [
@@ -142,7 +149,10 @@ export const sections = [
     catalogKey: 'conditions',
     catalog: CONDITION_CATALOG,
     fields: [
-      { name: 'cancerType', label: 'Type of Cancer' }
+      { name: 'cancerType', label: 'Type of Cancer' },
+      { name: 'worriedAboutAirPollution', label: 'Worried about air pollution?', type: 'boolean' },
+      { name: 'airPollutionConcerns', label: 'What are you worried about?', type: 'multiselect', options: optionSets.airPollutionConcerns, showWhen: { worriedAboutAirPollution: true } },
+      { name: 'otherAirPollutionConcern', label: 'Other concern', showWhen: { airPollutionConcerns: 'OTHER' } }
     ]
   },
   {

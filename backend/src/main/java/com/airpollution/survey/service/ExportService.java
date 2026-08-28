@@ -27,7 +27,9 @@ public class ExportService {
             "Ethnicity", "Other Ethnicity", "Education", "Other Education", "Occupation", "Other Occupation",
             "Cooking", "Wood/Coal Cooking Location",
             "Has Children", "Number Of Children", "Child Birthplace", "Child Vaccination",
-            "Respondent Vaccination", "MHIS Smart Card", "Cancer Type", "Fever Duration", "Remarks"
+            "Respondent Vaccination", "MHIS Smart Card", "Cancer Type",
+            "Worried About Air Pollution", "Air Pollution Concerns", "Other Air Pollution Concern",
+            "Fever Duration", "Remarks"
     };
 
     private static final String[] ITEM_SUFFIXES = {
@@ -129,7 +131,9 @@ public class ExportService {
                 labelList(r.getOccupation()), text(r.getOtherOccupation()),
                 labelList(r.getPrimaryCookingFuel()), labelList(r.getWoodCoalCookingLocation()),
                 bool(r.getHasChildren()), text(r.getNumberOfChildren()), labelList(r.getChildBirthplace()), label(r.getChildVaccination()),
-                bool(r.getRespondentVaccination()), bool(r.getMhisSmartCard()), text(r.getCancerType()), label(r.getFeverDuration()),
+                bool(r.getRespondentVaccination()), bool(r.getMhisSmartCard()), text(r.getCancerType()),
+                bool(r.getWorriedAboutAirPollution()), labelList(r.getAirPollutionConcerns()), text(r.getOtherAirPollutionConcern()),
+                label(r.getFeverDuration()),
                 text(r.getRemarks())
         ));
 

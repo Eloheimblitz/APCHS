@@ -28,6 +28,7 @@ public class SurveyMapper {
                 r.getHasChildren(), r.getNumberOfChildren(), r.getChildBirthplace(), r.getChildVaccination(),
                 r.getRespondentVaccination(), r.getMhisSmartCard(),
                 r.getConditions(), r.getCancerType(),
+                r.getWorriedAboutAirPollution(), r.getAirPollutionConcerns(), r.getOtherAirPollutionConcern(),
                 r.getSymptoms(), r.getFeverDuration(),
                 r.getOtherIssues(),
                 r.getRemarks(),

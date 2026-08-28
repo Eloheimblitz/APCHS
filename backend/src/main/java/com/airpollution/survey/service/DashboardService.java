@@ -22,7 +22,7 @@ public class DashboardService {
             "DRY_COUGH", "WET_COUGH", "WHEEZING", "BREATHLESSNESS", "CHEST_DISCOMFORT"
     );
     private static final List<String> COMMON_SYMPTOM_KEYS = List.of(
-            "DRY_COUGH", "WET_COUGH", "WHEEZING", "BREATHLESSNESS", "CHEST_DISCOMFORT", "EYE_IRRITATION"
+            "DRY_COUGH", "WET_COUGH", "WHEEZING", "BREATHLESSNESS", "CHEST_DISCOMFORT", "EYE_ITCHING"
     );
 
     private final SurveyService surveyService;

@@ -2,7 +2,8 @@ package com.airpollution.survey.service;
 
 public final class SurveyCatalog {
     public static final String[] SYMPTOM_KEYS = {
-            "HEADACHE", "EYE_IRRITATION", "RHINITIS", "SNEEZING", "SINUSITIS",
+            "HEADACHE", "EYE_ITCHING", "EYE_BURNING", "RED_EYES", "DRY_EYES", "WATERY_EYES", "BLURRED_VISION",
+            "RHINITIS", "SNEEZING", "SINUSITIS",
             "SORE_THROAT", "COLD", "FEVER", "DRY_COUGH", "WET_COUGH",
             "WHEEZING", "BREATHLESSNESS", "CHEST_DISCOMFORT", "SLEEP_DISTURBANCE",
             "SKIN_IRRITATION"
