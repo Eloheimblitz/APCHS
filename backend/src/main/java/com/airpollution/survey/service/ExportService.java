@@ -131,7 +131,7 @@ public class ExportService {
                 labelList(r.getOccupation()), text(r.getOtherOccupation()),
                 labelList(r.getPrimaryCookingFuel()), labelList(r.getWoodCoalCookingLocation()),
                 bool(r.getHasChildren()), text(r.getNumberOfChildren()), labelList(r.getChildBirthplace()), label(r.getChildVaccination()),
-                bool(r.getRespondentVaccination()), bool(r.getMhisSmartCard()), text(r.getCancerType()),
+                label(r.getRespondentVaccination()), bool(r.getMhisSmartCard()), text(r.getCancerType()),
                 bool(r.getWorriedAboutAirPollution()), labelList(r.getAirPollutionConcerns()), text(r.getOtherAirPollutionConcern()),
                 label(r.getFeverDuration()),
                 text(r.getRemarks())

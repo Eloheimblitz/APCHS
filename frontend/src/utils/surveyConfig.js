@@ -146,7 +146,7 @@ export const sections = [
       { name: 'numberOfChildren', label: 'Number of children', type: 'number', showWhen: { hasChildren: true } },
       { name: 'childBirthplace', label: 'Child birthplace', type: 'multiselect', options: optionSets.childBirthplace },
       { name: 'childVaccination', label: 'Child vaccination', type: 'select', options: optionSets.childVaccination },
-      { name: 'respondentVaccination', label: 'Respondent vaccination', type: 'boolean' },
+      { name: 'respondentVaccination', label: 'Respondent vaccination', type: 'select', options: optionSets.childVaccination },
       { name: 'mhisSmartCard', label: 'MHIS/smart card', type: 'boolean' }
     ]
   },

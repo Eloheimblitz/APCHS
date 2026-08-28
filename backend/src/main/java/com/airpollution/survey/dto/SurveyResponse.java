@@ -40,7 +40,7 @@ public record SurveyResponse(
         Integer numberOfChildren,
         List<String> childBirthplace,
         String childVaccination,
-        Boolean respondentVaccination,
+        String respondentVaccination,
         Boolean mhisSmartCard,
         List<HealthItemEntry> conditions,
         String cancerType,

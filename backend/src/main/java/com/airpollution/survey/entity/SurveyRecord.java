@@ -69,7 +69,7 @@ public class SurveyRecord {
     @Column(columnDefinition = "jsonb")
     private List<String> childBirthplace;
     private String childVaccination;
-    private Boolean respondentVaccination;
+    private String respondentVaccination;
     private Boolean mhisSmartCard;
 
     @JdbcTypeCode(SqlTypes.JSON)
@@ -160,8 +160,8 @@ public class SurveyRecord {
     public void setChildBirthplace(List<String> childBirthplace) { this.childBirthplace = childBirthplace; }
     public String getChildVaccination() { return childVaccination; }
     public void setChildVaccination(String childVaccination) { this.childVaccination = childVaccination; }
-    public Boolean getRespondentVaccination() { return respondentVaccination; }
-    public void setRespondentVaccination(Boolean respondentVaccination) { this.respondentVaccination = respondentVaccination; }
+    public String getRespondentVaccination() { return respondentVaccination; }
+    public void setRespondentVaccination(String respondentVaccination) { this.respondentVaccination = respondentVaccination; }
     public Boolean getMhisSmartCard() { return mhisSmartCard; }
     public void setMhisSmartCard(Boolean mhisSmartCard) { this.mhisSmartCard = mhisSmartCard; }
     public List<HealthItemEntry> getConditions() { return conditions; }
