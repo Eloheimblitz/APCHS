@@ -39,7 +39,7 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
     setChecking(true);
     onCheckingChange(true);
     try {
-      const { data } = await api.get('/surveys/check-id', { params: { surveyId } });
+      const { data } = await api.get('/surveys/check-id', { params: { surveyId }, timeout: 8000 });
       if (requestIdRef.current !== requestId) return;
       setDuplicate(data.exists);
       onDuplicateChange(data.exists);
