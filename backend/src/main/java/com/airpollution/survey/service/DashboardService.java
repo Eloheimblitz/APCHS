@@ -102,7 +102,7 @@ public class DashboardService {
     }
 
     private boolean hasAny(List<HealthItemEntry> items, Set<String> keys) {
-        return items.stream().anyMatch(entry -> keys.contains(entry.getKey()) && Boolean.TRUE.equals(entry.getPresent()));
+        return items.stream().anyMatch(entry -> entry.getKey() != null && keys.contains(entry.getKey()) && Boolean.TRUE.equals(entry.getPresent()));
     }
 
     private List<HealthItemEntry> allItems(SurveyRecord record) {
