@@ -31,7 +31,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
   }
 
   function update(name, value) {
-    setValues((current) => ({ ...current, [name]: value }));
+    setValues((current) => clearHiddenFields({ ...current, [name]: value }));
     setValidationErrors([]);
   }
 
@@ -258,6 +258,21 @@ function isVisible(field, values) {
     const actual = values[key];
     return Array.isArray(actual) ? actual.includes(expected) : actual === expected;
   });
+}
+
+function clearHiddenFields(values) {
+  let next = values;
+  sections.forEach((section) => {
+    section.fields.forEach((field) => {
+      if (!field.showWhen || isVisible(field, next)) return;
+      const current = next[field.name];
+      const isEmpty = current === null || current === undefined || current === '' || (Array.isArray(current) && current.length === 0);
+      if (!isEmpty) {
+        next = { ...next, [field.name]: Array.isArray(current) ? [] : '' };
+      }
+    });
+  });
+  return next;
 }
 
 function getCurrentGpsPosition(options) {

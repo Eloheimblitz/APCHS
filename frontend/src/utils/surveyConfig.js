@@ -144,8 +144,8 @@ export const sections = [
     fields: [
       { name: 'hasChildren', label: 'Do you have children?', type: 'boolean' },
       { name: 'numberOfChildren', label: 'Number of children', type: 'number', showWhen: { hasChildren: true } },
-      { name: 'childBirthplace', label: 'Child birthplace', type: 'multiselect', options: optionSets.childBirthplace },
-      { name: 'childVaccination', label: 'Child vaccination', type: 'select', options: optionSets.childVaccination },
+      { name: 'childBirthplace', label: 'Child birthplace', type: 'multiselect', options: optionSets.childBirthplace, showWhen: { hasChildren: true } },
+      { name: 'childVaccination', label: 'Child vaccination', type: 'select', options: optionSets.childVaccination, showWhen: { hasChildren: true } },
       { name: 'respondentVaccination', label: 'Respondent vaccination', type: 'select', options: optionSets.childVaccination },
       { name: 'mhisSmartCard', label: 'MHIS/smart card', type: 'boolean' }
     ]
