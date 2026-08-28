@@ -1,7 +1,7 @@
-import { labelize } from '../utils/surveyConfig';
+import { normalizeOptions } from '../utils/surveyConfig';
 
 export default function FormField({ field, value, onChange, disabled = false }) {
-  const options = field.options || [];
+  const options = normalizeOptions(field.options || []);
 
   if (field.type === 'boolean') {
     return (
@@ -22,8 +22,8 @@ export default function FormField({ field, value, onChange, disabled = false }) 
         <span>{field.label}{field.required && ' *'}</span>
         <select value={value ?? ''} onChange={(e) => onChange(e.target.value)} required={field.required} disabled={disabled}>
           <option value="">Select</option>
-          {options.map((option) => (
-            <option key={option} value={option}>{labelize(option)}</option>
+          {options.map(({ value: optionValue, label: optionLabel }) => (
+            <option key={optionValue} value={optionValue}>{optionLabel}</option>
           ))}
         </select>
       </label>
@@ -43,10 +43,10 @@ export default function FormField({ field, value, onChange, disabled = false }) 
       <label className="field field-wide">
         <span>{field.label}{field.required && ' *'}</span>
         <div className="checkbox-group">
-          {options.map((option) => (
-            <label key={option} className="checkbox-option">
-              <input type="checkbox" checked={selected.includes(option)} onChange={() => toggle(option)} disabled={disabled} />
-              <span>{labelize(option)}</span>
+          {options.map(({ value: optionValue, label: optionLabel }) => (
+            <label key={optionValue} className="checkbox-option">
+              <input type="checkbox" checked={selected.includes(optionValue)} onChange={() => toggle(optionValue)} disabled={disabled} />
+              <span>{optionLabel}</span>
             </label>
           ))}
         </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api from '../api/client';
 import HealthItemTable from '../components/HealthItemTable';
-import { labelize, labelizeList, sections } from '../utils/surveyConfig';
+import { labelize, normalizeOptions, sections } from '../utils/surveyConfig';
 
 export default function SurveyDetail() {
   const { id } = useParams();
@@ -46,7 +46,7 @@ export default function SurveyDetail() {
             {section.fields.map((field) => (
               <div key={field.name}>
                 <span>{field.label}</span>
-                <strong>{format(record[field.name])}</strong>
+                <strong>{format(record[field.name], field.options)}</strong>
               </div>
             ))}
           </div>
@@ -56,10 +56,12 @@ export default function SurveyDetail() {
   );
 }
 
-function format(value) {
+function format(value, options) {
   if (value === true) return 'Yes';
   if (value === false) return 'No';
-  if (Array.isArray(value)) return labelizeList(value);
+  const normalized = options ? normalizeOptions(options) : null;
+  const labelFor = (raw) => normalized?.find((o) => o.value === raw)?.label ?? labelize(raw);
+  if (Array.isArray(value)) return value.length === 0 ? '-' : value.map(labelFor).join(', ');
   if (value === null || value === undefined || value === '') return '-';
-  return typeof value === 'string' ? labelize(value) : value;
+  return typeof value === 'string' ? labelFor(value) : value;
 }

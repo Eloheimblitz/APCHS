@@ -14,7 +14,14 @@ export const optionSets = {
   childBirthplace: ['HOME', 'HOSPITAL', 'NA'],
   childVaccination: ['YES', 'NO', 'NA'],
   feverDuration: ['LESS_THAN_5_DAYS', 'MORE_THAN_5_DAYS', 'NA'],
-  airPollutionConcerns: ['OWN_HEALTH', 'CHILDRENS_HEALTH', 'OTHER_FAMILY_HEALTH', 'MISSING_WORK_SCHOOL', 'MEDICAL_EXPENSES', 'OTHER']
+  airPollutionConcerns: [
+    { value: 'OWN_HEALTH', label: 'Own Health' },
+    { value: 'CHILDRENS_HEALTH', label: "Children's Health" },
+    { value: 'OTHER_FAMILY_HEALTH', label: "Other Family Members' Health" },
+    { value: 'MISSING_WORK_SCHOOL', label: 'Missing Work/School' },
+    { value: 'MEDICAL_EXPENSES', label: 'Medical Expenses' },
+    { value: 'OTHER', label: 'Other' }
+  ]
 };
 
 export const SYMPTOM_CATALOG = [
@@ -186,4 +193,10 @@ export function labelize(value) {
 export function labelizeList(values) {
   if (!Array.isArray(values) || values.length === 0) return '-';
   return values.map(labelize).join(', ');
+}
+
+export function normalizeOptions(options) {
+  return options.map((option) =>
+    typeof option === 'object' ? option : { value: option, label: labelize(option) }
+  );
 }
