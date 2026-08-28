@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../api/client';
-import { deletePendingSurvey, getPendingSurveys, updatePendingSurvey } from '../utils/offlineStore';
+import { deletePendingSurvey, getPendingSurveys, isNetworkError, updatePendingSurvey } from '../utils/offlineStore';
 import { labelize } from '../utils/surveyConfig';
 
 export default function OfflineQueue() {
@@ -45,10 +45,11 @@ export default function OfflineQueue() {
         synced += 1;
       } catch (err) {
         failed += 1;
-        await updatePendingSurvey(record.id, {
-          status: 'FAILED',
-          error: err.response?.data?.message || 'Sync failed. Check connection and required fields.'
-        });
+        const message = err.response?.data?.message
+          || (isNetworkError(err)
+            ? 'Could not reach the server. The connection may be slow or the server may be starting up - try syncing again in a moment.'
+            : 'Sync failed. Check connection and required fields.');
+        await updatePendingSurvey(record.id, { status: 'FAILED', error: message });
       }
     }
 

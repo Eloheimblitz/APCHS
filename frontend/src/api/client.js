@@ -2,7 +2,9 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
-  timeout: 30000
+  // Generous enough to survive the backend waking from a Render free-tier
+  // cold start (can take 30-60s) without spuriously failing a real submit/sync.
+  timeout: 90000
 });
 
 api.interceptors.request.use((config) => {
