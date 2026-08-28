@@ -151,7 +151,7 @@ export const sections = [
     fields: [
       { name: 'cancerType', label: 'Type of Cancer' },
       { name: 'worriedAboutAirPollution', label: 'Worried about air pollution?', type: 'boolean' },
-      { name: 'airPollutionConcerns', label: 'What are you worried about?', type: 'multiselect', options: optionSets.airPollutionConcerns, showWhen: { worriedAboutAirPollution: true } },
+      { name: 'airPollutionConcerns', label: 'What are you worried about?', type: 'multiselect', options: optionSets.airPollutionConcerns },
       { name: 'otherAirPollutionConcern', label: 'Other concern', showWhen: { airPollutionConcerns: 'OTHER' } }
     ]
   },
