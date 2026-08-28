@@ -68,6 +68,19 @@ export default function Users() {
     }
   }
 
+  async function deleteUser(user) {
+    if (!confirm(`Delete user "${user.username}"? This cannot be undone.`)) return;
+    setError('');
+    setMessage('');
+    try {
+      await api.delete(`/users/${user.id}`);
+      setMessage('User deleted.');
+      await loadUsers();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to delete user.');
+    }
+  }
+
   async function resetPassword(user) {
     const password = passwords[user.id];
     if (!password || password.length < 8) {
@@ -128,6 +141,7 @@ export default function Users() {
               <th>Role</th>
               <th>Status</th>
               <th>Reset Password</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -159,6 +173,11 @@ export default function Users() {
                     />
                     <button className="secondary-button" onClick={() => resetPassword(user)}>Reset</button>
                   </div>
+                </td>
+                <td>
+                  {user.username !== session.username && (
+                    <button className="action-button delete-action" onClick={() => deleteUser(user)}>Delete</button>
+                  )}
                 </td>
               </tr>
             ))}

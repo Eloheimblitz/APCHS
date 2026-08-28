@@ -67,6 +67,18 @@ public class UserService {
     }
 
     @Transactional
+    public void delete(Long id, Authentication authentication) {
+        AppUser user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (user.getUsername().equals(authentication.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot delete your own account");
+        }
+
+        userRepository.delete(user);
+    }
+
+    @Transactional
     public void changeOwnPassword(PasswordChangeRequest request, Authentication authentication) {
         AppUser user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
