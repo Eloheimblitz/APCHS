@@ -32,11 +32,6 @@ public class SurveyController {
         return surveyService.create(request, authentication);
     }
 
-    @GetMapping("/next-id")
-    public Map<String, String> nextId() {
-        return Map.of("surveyId", surveyService.suggestNextSurveyId());
-    }
-
     @GetMapping("/check-id")
     public Map<String, Boolean> checkId(@RequestParam String surveyId) {
         return Map.of("exists", surveyService.surveyIdExists(surveyId));

@@ -5,10 +5,8 @@ const CURRENT_YEAR_PREFIX = `APCHS-${new Date().getFullYear()}-`;
 const PREFIX_PATTERN = /^(APCHS-\d{4}-)/;
 
 export default function SurveyIdField({ value, onChange, disabled = false, required = false, onDuplicateChange = () => {}, onCheckingChange = () => {} }) {
-  const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
-  const [suggestError, setSuggestError] = useState('');
   const requestIdRef = useRef(0);
 
   const existingPrefixMatch = value && value.match(PREFIX_PATTERN);
@@ -19,7 +17,6 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
     const digitsOnly = raw.replace(/\D/g, '');
     setDuplicate(false);
     onDuplicateChange(false);
-    setSuggestError('');
     if (digitsOnly === '') {
       onChange('');
       return;
@@ -56,22 +53,6 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
     }
   }
 
-  async function suggest() {
-    setLoading(true);
-    setSuggestError('');
-    requestIdRef.current++;
-    setDuplicate(false);
-    onDuplicateChange(false);
-    try {
-      const { data } = await api.get('/surveys/next-id');
-      onChange(data.surveyId);
-    } catch {
-      setSuggestError('Could not get a suggested number. Check your connection and try again, or enter one manually.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <label className="field">
       <span>Survey ID{required && ' *'}</span>
@@ -87,18 +68,11 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
           disabled={disabled}
           required={required}
         />
-        {!disabled && (
-          <button type="button" className="secondary-button" onClick={suggest} disabled={loading}>
-            {loading ? 'Loading...' : 'Suggest'}
-          </button>
-        )}
       </div>
-      {loading && <span className="field-hint">Requesting a number - this can take a moment if the server was idle...</span>}
       {checking && <span className="field-hint">Checking availability...</span>}
       {duplicate && !checking && (
-        <span className="field-error">This Survey ID is already in use. Enter a different number or use Suggest.</span>
+        <span className="field-error">This Survey ID is already in use. Check the physical form and enter the correct number.</span>
       )}
-      {suggestError && <span className="field-error">{suggestError}</span>}
     </label>
   );
 }

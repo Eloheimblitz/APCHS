@@ -734,14 +734,9 @@ textarea {
 }
 
 .survey-id-input input {
-  border-radius: 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   flex: 1;
   min-width: 0;
-}
-
-.survey-id-input .secondary-button {
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  white-space: nowrap;
 }
 
 .field-wide {

@@ -12,10 +12,6 @@ import org.springframework.data.repository.query.Param;
 public interface SurveyRecordRepository extends JpaRepository<SurveyRecord, Long>, JpaSpecificationExecutor<SurveyRecord> {
     Optional<SurveyRecord> findTopBySurveyDateBetweenOrderByIdDesc(LocalDate start, LocalDate end);
     boolean existsBySurveyId(String surveyId);
-    long countBySurveyIdStartingWith(String prefix);
-
-    @Query(value = "SELECT survey_id FROM survey_records WHERE survey_id LIKE CONCAT(:prefix, '%')", nativeQuery = true)
-    List<String> findSurveyIdsStartingWith(@Param("prefix") String prefix);
 
     @Query(value = "SELECT id FROM survey_records WHERE primary_cooking_fuel @> jsonb_build_array(CAST(:fuel AS text))", nativeQuery = true)
     List<Long> findIdsByCookingFuel(@Param("fuel") String fuel);

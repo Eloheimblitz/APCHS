@@ -18,7 +18,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
   function handleSurveyIdDuplicate(taken) {
     setSurveyIdTaken(taken);
     if (taken) {
-      setValidationErrors([{ sectionIndex: surveyIdSectionIndex, name: 'surveyId', label: 'Survey ID is already in use - enter a different number or use Suggest' }]);
+      setValidationErrors([{ sectionIndex: surveyIdSectionIndex, name: 'surveyId', label: 'Survey ID is already in use - check the physical form and enter the correct number' }]);
       setActiveSection(surveyIdSectionIndex);
       setMaxUnlockedSection((max) => Math.max(max, surveyIdSectionIndex));
     }
@@ -29,7 +29,7 @@ export default function SurveyForm({ initialValues = {}, lockedFields = [], onSu
       return { sectionIndex, name: 'surveyId', label: 'Still checking Survey ID availability - wait a moment and try again' };
     }
     if (surveyIdTaken) {
-      return { sectionIndex, name: 'surveyId', label: 'Survey ID is already in use - enter a different number or use Suggest' };
+      return { sectionIndex, name: 'surveyId', label: 'Survey ID is already in use - check the physical form and enter the correct number' };
     }
     return null;
   }

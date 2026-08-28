@@ -51,24 +51,6 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
-    public String suggestNextSurveyId() {
-        int year = LocalDate.now().getYear();
-        String prefix = "APCHS-" + year + "-";
-        long next = repository.findSurveyIdsStartingWith(prefix).stream()
-                .map(id -> id.substring(prefix.length()))
-                .filter(suffix -> suffix.matches("\\d+"))
-                .mapToLong(Long::parseLong)
-                .max()
-                .orElse(0L) + 1;
-        String candidate = prefix + String.format("%03d", next);
-        while (repository.existsBySurveyId(candidate)) {
-            next++;
-            candidate = prefix + String.format("%03d", next);
-        }
-        return candidate;
-    }
-
-    @Transactional(readOnly = true)
     public boolean surveyIdExists(String surveyId) {
         return repository.existsBySurveyId(surveyId.trim());
     }
