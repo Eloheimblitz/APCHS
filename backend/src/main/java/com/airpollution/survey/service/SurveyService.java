@@ -92,8 +92,26 @@ public class SurveyService {
     public SurveyResponse update(Long id, SurveyUpdateRequest request, Authentication authentication) {
         SurveyRecord record = getRecord(id, authentication);
         mapper.copyPayload(request, record);
+        if (isAdmin(authentication)) {
+            applySurveyIdCorrection(record, request.getSurveyId());
+        }
         record.setUpdatedAt(OffsetDateTime.now());
-        return mapper.toResponse(repository.save(record));
+        try {
+            return mapper.toResponse(repository.save(record));
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + record.getSurveyId() + "' is already in use");
+        }
+    }
+
+    private void applySurveyIdCorrection(SurveyRecord record, String requestedId) {
+        if (requestedId == null || requestedId.isBlank()) return;
+        String trimmed = requestedId.trim();
+        if (trimmed.equals(record.getSurveyId())) return;
+        if (repository.existsBySurveyId(trimmed)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + trimmed + "' is already in use");
+        }
+        record.setSurveyId(trimmed);
+        record.setHouseholdId(trimmed.replace("APCHS", "HH"));
     }
 
     @Transactional

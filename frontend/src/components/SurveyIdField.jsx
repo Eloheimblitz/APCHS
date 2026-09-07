@@ -8,6 +8,7 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
   const [checking, setChecking] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
   const requestIdRef = useRef(0);
+  const initialValueRef = useRef(value);
 
   const existingPrefixMatch = value && value.match(PREFIX_PATTERN);
   const prefix = existingPrefixMatch ? existingPrefixMatch[1] : CURRENT_YEAR_PREFIX;
@@ -30,6 +31,11 @@ export default function SurveyIdField({ value, onChange, disabled = false, requi
     const paddedValue = `${prefix}${padded}`;
     if (padded !== numberPart) {
       onChange(paddedValue);
+    }
+    if (paddedValue === initialValueRef.current) {
+      setDuplicate(false);
+      onDuplicateChange(false);
+      return;
     }
     await checkDuplicate(paddedValue);
   }
