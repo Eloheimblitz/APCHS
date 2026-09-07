@@ -33,7 +33,9 @@ public class SurveyRecord {
     private String surveyorId;
     private Boolean consentObtained;
     private String studyArea;
+    @Column(precision = 12, scale = 7)
     private BigDecimal latitude;
+    @Column(precision = 12, scale = 7)
     private BigDecimal longitude;
     private BigDecimal gpsAccuracy;
     private String gridId;
