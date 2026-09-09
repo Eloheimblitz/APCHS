@@ -3,10 +3,17 @@ package com.airpollution.survey.controller;
 import com.airpollution.survey.dto.SurveyCreateRequest;
 import com.airpollution.survey.dto.SurveyResponse;
 import com.airpollution.survey.dto.SurveyUpdateRequest;
+import com.airpollution.survey.entity.SurveyRecord;
+import com.airpollution.survey.service.PdfExportService;
 import com.airpollution.survey.service.SurveyService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/surveys")
 public class SurveyController {
     private final SurveyService surveyService;
+    private final PdfExportService pdfExportService;
 
-    public SurveyController(SurveyService surveyService) {
+    public SurveyController(SurveyService surveyService, PdfExportService pdfExportService) {
         this.surveyService = surveyService;
+        this.pdfExportService = pdfExportService;
     }
 
     @PostMapping
@@ -45,6 +54,18 @@ public class SurveyController {
     @GetMapping("/{id}")
     public SurveyResponse get(@PathVariable Long id, Authentication authentication) {
         return surveyService.get(id, authentication);
+    }
+
+    @GetMapping("/{id}/export.pdf")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<byte[]> exportPdf(@PathVariable Long id, Authentication authentication) {
+        SurveyRecord record = surveyService.getRecord(id, authentication);
+        byte[] pdf = pdfExportService.generate(record);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment().filename(record.getSurveyId() + ".pdf").build().toString())
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     @PutMapping("/{id}")

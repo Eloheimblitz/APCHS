@@ -1,5 +1,10 @@
 package com.airpollution.survey.service;
 
+import static com.airpollution.survey.service.TextFormat.bool;
+import static com.airpollution.survey.service.TextFormat.label;
+import static com.airpollution.survey.service.TextFormat.labelList;
+import static com.airpollution.survey.service.TextFormat.text;
+
 import com.airpollution.survey.entity.HealthItemEntry;
 import com.airpollution.survey.entity.SurveyRecord;
 import com.opencsv.CSVWriter;
@@ -172,23 +177,5 @@ public class ExportService {
     private Map<String, HealthItemEntry> byKey(List<HealthItemEntry> items) {
         if (items == null) return Map.of();
         return items.stream().collect(Collectors.toMap(HealthItemEntry::getKey, entry -> entry, (a, b) -> a));
-    }
-
-    private String text(Object value) {
-        return value == null ? "" : String.valueOf(value);
-    }
-
-    private String bool(Boolean value) {
-        if (value == null) return "";
-        return value ? "Yes" : "No";
-    }
-
-    private String label(String value) {
-        return value == null ? "" : value.replace('_', ' ');
-    }
-
-    private String labelList(List<String> values) {
-        if (values == null || values.isEmpty()) return "";
-        return values.stream().map(this::label).collect(Collectors.joining(", "));
     }
 }

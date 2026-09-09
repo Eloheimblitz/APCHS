@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import api from '../api/client';
+import api, { downloadBlob, getSession } from '../api/client';
 import HealthItemTable from '../components/HealthItemTable';
 import { labelize, normalizeOptions, sections } from '../utils/surveyConfig';
 
@@ -8,12 +8,28 @@ export default function SurveyDetail() {
   const { id } = useParams();
   const [record, setRecord] = useState(null);
   const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState('');
+  const isAdmin = getSession()?.role === 'ADMIN';
 
   useEffect(() => {
     api.get(`/surveys/${id}`)
       .then(({ data }) => setRecord(data))
       .catch(() => setError('Unable to load survey detail.'));
   }, [id]);
+
+  async function exportPdf() {
+    setExporting(true);
+    setExportError('');
+    try {
+      const { data } = await api.get(`/surveys/${id}/export.pdf`, { responseType: 'blob' });
+      downloadBlob(data, `${record.surveyId}.pdf`, 'application/pdf');
+    } catch {
+      setExportError('Unable to export PDF.');
+    } finally {
+      setExporting(false);
+    }
+  }
 
   if (error) return <div className="page"><div className="alert error">{error}</div></div>;
   if (!record) return <div className="page"><p>Loading survey detail...</p></div>;
@@ -27,9 +43,16 @@ export default function SurveyDetail() {
         </div>
         <div className="header-actions">
           <Link className="secondary-link" to="/surveys">Records</Link>
+          {isAdmin && (
+            <button className="secondary-button" onClick={exportPdf} disabled={exporting}>
+              {exporting ? 'Exporting...' : 'Export PDF'}
+            </button>
+          )}
           <Link className="button-link" to={`/surveys/${record.id}/edit`}>Edit</Link>
         </div>
       </header>
+
+      {exportError && <div className="alert error">{exportError}</div>}
 
       {sections.map((section) => (
         <section className="detail-card" key={section.title}>
