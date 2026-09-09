@@ -124,5 +124,8 @@ export async function countPendingSurveys() {
 }
 
 export function isNetworkError(error) {
-  return !error.response || error.code === 'ERR_NETWORK' || error.message === 'Network Error';
+  if (!error.response) return true;
+  if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') return true;
+  const status = error.response.status;
+  return status === 502 || status === 503 || status === 504;
 }
