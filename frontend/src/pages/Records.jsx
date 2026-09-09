@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { downloadBlob, getSession } from '../api/client';
 import { labelize, labelizeList, optionSets } from '../utils/surveyConfig';
@@ -18,10 +18,21 @@ export default function Records() {
   const [error, setError] = useState('');
   const session = getSession();
   const isAdmin = session?.role === 'ADMIN';
+  const isFirstRun = useRef(true);
 
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+    const handle = setTimeout(() => load(), 400);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.surveyId]);
 
   async function load(event) {
     event?.preventDefault();
