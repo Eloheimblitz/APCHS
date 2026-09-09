@@ -127,6 +127,9 @@ public class SurveyService {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             addEquals(predicates, cb, root.get("studyArea"), filters.get("studyArea"));
+            if (hasValue(filters.get("surveyId"))) {
+                predicates.add(cb.like(cb.lower(root.get("surveyId")), "%" + filters.get("surveyId").toLowerCase() + "%"));
+            }
             if (hasValue(filters.get("fromDate"))) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("surveyDate"), LocalDate.parse(filters.get("fromDate"))));
             }

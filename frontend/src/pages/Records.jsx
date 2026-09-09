@@ -4,6 +4,7 @@ import api, { downloadBlob, getSession } from '../api/client';
 import { labelize, labelizeList, optionSets } from '../utils/surveyConfig';
 
 const emptyFilters = {
+  surveyId: '',
   fromDate: '',
   toDate: '',
   studyArea: '',
@@ -68,6 +69,12 @@ export default function Records() {
       </header>
 
       <form className="filters" onSubmit={load}>
+        <input
+          type="text"
+          placeholder="Search Survey ID"
+          value={filters.surveyId}
+          onChange={(e) => setFilter('surveyId', e.target.value)}
+        />
         <input type="date" value={filters.fromDate} onChange={(e) => setFilter('fromDate', e.target.value)} />
         <input type="date" value={filters.toDate} onChange={(e) => setFilter('toDate', e.target.value)} />
         <select value={filters.studyArea} onChange={(e) => setFilter('studyArea', e.target.value)}>
