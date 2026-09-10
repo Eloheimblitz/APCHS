@@ -33,7 +33,8 @@ public class PdfExportService {
     public byte[] generate(SurveyRecord r) {
         try (PDDocument doc = new PDDocument()) {
             Writer w = new Writer(doc);
-            w.header("Air Pollution & Community Health Survey", text(r.getSurveyId()), text(r.getHouseholdId()));
+            w.header("Air Pollution & Community Health Survey", text(r.getSurveyId()), text(r.getHouseholdId()),
+                    text(r.getSurveyDate()));
 
             w.section("A. Survey Information");
             w.field("Survey Date", text(r.getSurveyDate()));
@@ -103,8 +104,11 @@ public class PdfExportService {
         private static final float PAGE_WIDTH = PDRectangle.A4.getWidth();
         private static final float PAGE_HEIGHT = PDRectangle.A4.getHeight();
         private static final float CONTENT_WIDTH = PAGE_WIDTH - 2 * MARGIN;
-        private static final float BIG_HEADER_HEIGHT = 86;
-        private static final float SLIM_HEADER_HEIGHT = 34;
+        private static final float BOX_WIDTH = 190;
+        private static final float BOX_HEIGHT = 86;
+        private static final float BOX_TOP_OFFSET = 36;
+        private static final float BIG_HEADER_HEIGHT = BOX_TOP_OFFSET + BOX_HEIGHT + 10;
+        private static final float SLIM_HEADER_HEIGHT = 30;
         private static final float FOOTER_HEIGHT = 30;
         private static final float COL_GAP = 22;
         private static final float COL_WIDTH = (CONTENT_WIDTH - COL_GAP) / 2;
@@ -116,23 +120,18 @@ public class PdfExportService {
         private static final PDFont REGULAR = PDType1Font.HELVETICA;
         private static final PDFont OBLIQUE = PDType1Font.HELVETICA_OBLIQUE;
 
-        private static final Color ACCENT = rgb("#0e8f83");
-        private static final Color ACCENT_DARK = rgb("#0b6e65");
-        private static final Color ACCENT_SOFT = rgb("#e2f7f4");
-        private static final Color TEXT = rgb("#16203a");
-        private static final Color TEXT_MUTED = rgb("#64748b");
-        private static final Color TEXT_SUBTLE = rgb("#94a3b8");
-        private static final Color BORDER = rgb("#e4e9f2");
-        private static final Color BORDER_STRONG = rgb("#cbd5e1");
-        private static final Color SURFACE_MUTED = rgb("#f7f9fc");
-        private static final Color SUCCESS = rgb("#16915a");
+        private static final Color BLACK = new Color(0, 0, 0);
+        private static final Color GRAY_700 = new Color(70, 70, 70);
+        private static final Color GRAY_500 = new Color(130, 130, 130);
+        private static final Color GRAY_300 = new Color(205, 205, 205);
+        private static final Color GRAY_100 = new Color(245, 245, 245);
         private static final Color WHITE = Color.WHITE;
 
         private final PDDocument doc;
         private PDPageContentStream stream;
         private float y;
         private String docTitle;
-        private String docMeta;
+        private String docSurveyId;
         private final List<String[]> pendingFields = new ArrayList<>();
 
         Writer(PDDocument doc) throws IOException {
@@ -155,25 +154,46 @@ public class PdfExportService {
             if (y - needed < MARGIN + FOOTER_HEIGHT) newPage();
         }
 
-        void header(String title, String surveyId, String householdId) throws IOException {
+        void header(String title, String surveyId, String householdId, String surveyDate) throws IOException {
             this.docTitle = title;
-            this.docMeta = "Survey ID: " + surveyId + "   |   Household ID: " + householdId;
-            fillRect(0, PAGE_HEIGHT - BIG_HEADER_HEIGHT, PAGE_WIDTH, BIG_HEADER_HEIGHT, ACCENT);
-            fillRect(0, PAGE_HEIGHT - BIG_HEADER_HEIGHT, 6, BIG_HEADER_HEIGHT, ACCENT_DARK);
-            draw(BOLD, 18, MARGIN, PAGE_HEIGHT - 34, WHITE, title);
-            draw(REGULAR, 11, MARGIN, PAGE_HEIGHT - 54, ACCENT_SOFT, docMeta);
-            String generated = "Generated "
-                    + java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("d MMM yyyy"));
-            float genWidth = REGULAR.getStringWidth(generated) / 1000 * 9;
-            draw(REGULAR, 9, PAGE_WIDTH - MARGIN - genWidth, PAGE_HEIGHT - 34, ACCENT_SOFT, generated);
-            y = PAGE_HEIGHT - BIG_HEADER_HEIGHT - 26;
+            this.docSurveyId = surveyId;
+            float topY = PAGE_HEIGHT - MARGIN;
+
+            draw(BOLD, 19, MARGIN, topY - 18, BLACK, title);
+            draw(REGULAR, 9.5f, MARGIN, topY - 33, GRAY_700, "Household Health Assessment Record");
+            String generated = "Generated " + java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("d MMM yyyy"));
+            draw(REGULAR, 8.5f, MARGIN, topY - 48, GRAY_500, generated);
+
+            float boxX = PAGE_WIDTH - MARGIN - BOX_WIDTH;
+            float boxTop = topY - BOX_TOP_OFFSET;
+            strokeRect(boxX, boxTop - BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT, BLACK, 1f);
+            float rowH = BOX_HEIGHT / 3;
+            String[][] rows = {
+                    { "SURVEY ID", surveyId },
+                    { "HOUSEHOLD ID", householdId },
+                    { "DATE", surveyDate }
+            };
+            for (int i = 0; i < rows.length; i++) {
+                float rowTop = boxTop - i * rowH;
+                draw(BOLD, 7, boxX + 10, rowTop - 12, GRAY_700, rows[i][0]);
+                draw(BOLD, i == 0 ? 13 : 10.5f, boxX + 10, rowTop - (i == 0 ? 25 : 24), BLACK, displayValue(rows[i][1]));
+                if (i > 0) {
+                    strokeLine(boxX, rowTop, boxX + BOX_WIDTH, rowTop, GRAY_300, 0.6f);
+                }
+            }
+
+            float ruleY = topY - BIG_HEADER_HEIGHT;
+            strokeLine(MARGIN, ruleY, PAGE_WIDTH - MARGIN, ruleY, BLACK, 1.6f);
+            y = ruleY - 22;
         }
 
         private void drawSlimHeader() throws IOException {
-            fillRect(0, PAGE_HEIGHT - SLIM_HEADER_HEIGHT, PAGE_WIDTH, SLIM_HEADER_HEIGHT, ACCENT);
-            draw(BOLD, 10, MARGIN, PAGE_HEIGHT - 22, WHITE, docTitle);
-            float metaWidth = REGULAR.getStringWidth(sanitize(docMeta)) / 1000 * 8.5f;
-            draw(REGULAR, 8.5f, PAGE_WIDTH - MARGIN - metaWidth, PAGE_HEIGHT - 22, ACCENT_SOFT, docMeta);
+            draw(BOLD, 10, MARGIN, PAGE_HEIGHT - 20, BLACK, docTitle);
+            String meta = "Survey ID: " + docSurveyId;
+            float metaWidth = REGULAR.getStringWidth(sanitize(meta)) / 1000 * 8.5f;
+            draw(REGULAR, 8.5f, PAGE_WIDTH - MARGIN - metaWidth, PAGE_HEIGHT - 20, GRAY_700, meta);
+            strokeLine(MARGIN, PAGE_HEIGHT - SLIM_HEADER_HEIGHT, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - SLIM_HEADER_HEIGHT,
+                    BLACK, 1f);
             y = PAGE_HEIGHT - SLIM_HEADER_HEIGHT - 20;
         }
 
@@ -181,14 +201,9 @@ public class PdfExportService {
             flushGrid();
             ensureSpace(30);
             y -= 4;
-            fillRect(MARGIN, y - 11, 4, 13, ACCENT);
-            draw(BOLD, 12.5f, MARGIN + 10, y - 10, ACCENT_DARK, value);
-            y -= 18;
-            setColor(BORDER_STRONG, false);
-            stream.setLineWidth(0.75f);
-            stream.moveTo(MARGIN, y);
-            stream.lineTo(PAGE_WIDTH - MARGIN, y);
-            stream.stroke();
+            draw(BOLD, 12, MARGIN, y - 10, BLACK, value.toUpperCase());
+            y -= 16;
+            strokeLine(MARGIN, y, PAGE_WIDTH - MARGIN, y, BLACK, 1f);
             y -= 14;
         }
 
@@ -215,10 +230,10 @@ public class PdfExportService {
         }
 
         private void drawFieldCell(float x, String fieldLabel, List<String> valueLines) throws IOException {
-            draw(BOLD, 8.5f, x, y, TEXT_MUTED, fieldLabel.toUpperCase());
+            draw(BOLD, 8.5f, x, y, GRAY_700, fieldLabel.toUpperCase());
             boolean blank = valueLines.size() == 1 && "-".equals(valueLines.get(0));
             for (int i = 0; i < valueLines.size(); i++) {
-                draw(REGULAR, 10.5f, x, y - LABEL_LINE - i * VALUE_LINE, blank ? TEXT_SUBTLE : TEXT, valueLines.get(i));
+                draw(REGULAR, 10.5f, x, y - LABEL_LINE - i * VALUE_LINE, blank ? GRAY_500 : BLACK, valueLines.get(i));
             }
         }
 
@@ -234,10 +249,10 @@ public class PdfExportService {
             float detailW = CONTENT_WIDTH - itemW - presentW;
             float headerH = 20;
             ensureSpace(headerH);
-            fillRect(MARGIN, y - headerH, CONTENT_WIDTH, headerH, ACCENT_SOFT);
-            draw(BOLD, 9, MARGIN + 6, y - 14, ACCENT_DARK, itemColumnLabel);
-            draw(BOLD, 9, MARGIN + itemW + 6, y - 14, ACCENT_DARK, "Present");
-            draw(BOLD, 9, MARGIN + itemW + presentW + 6, y - 14, ACCENT_DARK, "Details");
+            fillRect(MARGIN, y - headerH, CONTENT_WIDTH, headerH, BLACK);
+            draw(BOLD, 9, MARGIN + 6, y - 14, WHITE, itemColumnLabel.toUpperCase());
+            draw(BOLD, 9, MARGIN + itemW + 6, y - 14, WHITE, "PRESENT");
+            draw(BOLD, 9, MARGIN + itemW + presentW + 6, y - 14, WHITE, "DETAILS");
             y -= headerH;
 
             int rowIndex = 0;
@@ -248,22 +263,18 @@ public class PdfExportService {
                 List<String> detailLines = details.isEmpty() ? List.of() : wrap(details, REGULAR, 8.5f, detailW - 12);
                 float rowH = Math.max(1, detailLines.size()) * 12 + 8;
                 ensureSpace(rowH);
-                Color bg = rowIndex % 2 == 0 ? WHITE : SURFACE_MUTED;
+                Color bg = rowIndex % 2 == 0 ? WHITE : GRAY_100;
                 fillRect(MARGIN, y - rowH, CONTENT_WIDTH, rowH, bg);
-                draw(REGULAR, 9.5f, MARGIN + 6, y - 14, TEXT, mapper.label(key));
-                draw(BOLD, 9, MARGIN + itemW + 6, y - 14, present ? SUCCESS : TEXT_SUBTLE, present ? "Yes" : "No");
+                draw(REGULAR, 9.5f, MARGIN + 6, y - 14, BLACK, mapper.label(key));
+                draw(BOLD, 9, MARGIN + itemW + 6, y - 14, present ? BLACK : GRAY_500, present ? "YES" : "No");
                 if (detailLines.isEmpty()) {
-                    draw(REGULAR, 8.5f, MARGIN + itemW + presentW + 6, y - 14, TEXT_SUBTLE, "-");
+                    draw(REGULAR, 8.5f, MARGIN + itemW + presentW + 6, y - 14, GRAY_500, "-");
                 } else {
                     for (int i = 0; i < detailLines.size(); i++) {
-                        draw(REGULAR, 8.5f, MARGIN + itemW + presentW + 6, y - 12 - i * 12, TEXT_MUTED, detailLines.get(i));
+                        draw(REGULAR, 8.5f, MARGIN + itemW + presentW + 6, y - 12 - i * 12, GRAY_700, detailLines.get(i));
                     }
                 }
-                setColor(BORDER, false);
-                stream.setLineWidth(0.4f);
-                stream.moveTo(MARGIN, y - rowH);
-                stream.lineTo(PAGE_WIDTH - MARGIN, y - rowH);
-                stream.stroke();
+                strokeLine(MARGIN, y - rowH, PAGE_WIDTH - MARGIN, y - rowH, GRAY_300, 0.5f);
                 y -= rowH;
                 rowIndex++;
             }
@@ -283,13 +294,13 @@ public class PdfExportService {
                             : wrap(details, OBLIQUE, 8.5f, CONTENT_WIDTH - 16);
                     float h = descLines.size() * VALUE_LINE + detailLines.size() * 11 + 10;
                     ensureSpace(h);
-                    fillRect(MARGIN, y - 11, 4, 13, ACCENT_DARK);
+                    fillRect(MARGIN, y - 11, 4, 13, BLACK);
                     for (int i = 0; i < descLines.size(); i++) {
-                        draw(REGULAR, 10, MARGIN + 12, y - 10 - i * VALUE_LINE, TEXT, descLines.get(i));
+                        draw(REGULAR, 10, MARGIN + 12, y - 10 - i * VALUE_LINE, BLACK, descLines.get(i));
                     }
                     float dy = y - 10 - descLines.size() * VALUE_LINE;
                     for (String d : detailLines) {
-                        draw(OBLIQUE, 8.5f, MARGIN + 12, dy, TEXT_MUTED, d);
+                        draw(OBLIQUE, 8.5f, MARGIN + 12, dy, GRAY_700, d);
                         dy -= 11;
                     }
                     y -= h;
@@ -330,19 +341,28 @@ public class PdfExportService {
             stream.fill();
         }
 
+        private void strokeRect(float x, float py, float w, float h, Color color, float lineWidth) throws IOException {
+            if (lineWidth <= 0) return;
+            setColor(color, false);
+            stream.setLineWidth(lineWidth);
+            stream.addRect(x, py, w, h);
+            stream.stroke();
+        }
+
+        private void strokeLine(float x1, float y1, float x2, float y2, Color color, float lineWidth) throws IOException {
+            setColor(color, false);
+            stream.setLineWidth(lineWidth);
+            stream.moveTo(x1, y1);
+            stream.lineTo(x2, y2);
+            stream.stroke();
+        }
+
         private void setColor(Color color, boolean nonStroking) throws IOException {
             if (nonStroking) {
                 stream.setNonStrokingColor(color);
             } else {
                 stream.setStrokingColor(color);
             }
-        }
-
-        private static Color rgb(String hex) {
-            return new Color(
-                    Integer.parseInt(hex.substring(1, 3), 16),
-                    Integer.parseInt(hex.substring(3, 5), 16),
-                    Integer.parseInt(hex.substring(5, 7), 16));
         }
 
         private String sanitize(String value) {
@@ -381,13 +401,13 @@ public class PdfExportService {
             for (int i = 0; i < total; i++) {
                 PDPage page = doc.getPage(i);
                 try (PDPageContentStream fs = new PDPageContentStream(doc, page, AppendMode.APPEND, true)) {
-                    fs.setStrokingColor(BORDER);
-                    fs.setLineWidth(0.5f);
+                    fs.setStrokingColor(GRAY_300);
+                    fs.setLineWidth(0.6f);
                     fs.moveTo(MARGIN, MARGIN - 6);
                     fs.lineTo(PAGE_WIDTH - MARGIN, MARGIN - 6);
                     fs.stroke();
 
-                    fs.setNonStrokingColor(TEXT_SUBTLE);
+                    fs.setNonStrokingColor(GRAY_500);
                     fs.beginText();
                     fs.setFont(REGULAR, 8);
                     fs.newLineAtOffset(MARGIN, MARGIN - 18);
