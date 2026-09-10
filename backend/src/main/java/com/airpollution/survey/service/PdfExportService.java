@@ -100,21 +100,22 @@ public class PdfExportService {
     }
 
     private static final class Writer {
-        private static final float MARGIN = 42;
+        private static final float MARGIN = 26;
         private static final float PAGE_WIDTH = PDRectangle.A4.getWidth();
         private static final float PAGE_HEIGHT = PDRectangle.A4.getHeight();
         private static final float CONTENT_WIDTH = PAGE_WIDTH - 2 * MARGIN;
-        private static final float BOX_WIDTH = 190;
-        private static final float BOX_HEIGHT = 86;
-        private static final float BOX_TOP_OFFSET = 36;
-        private static final float BIG_HEADER_HEIGHT = BOX_TOP_OFFSET + BOX_HEIGHT + 10;
-        private static final float SLIM_HEADER_HEIGHT = 30;
-        private static final float FOOTER_HEIGHT = 30;
-        private static final float COL_GAP = 22;
-        private static final float COL_WIDTH = (CONTENT_WIDTH - COL_GAP) / 2;
-        private static final float LABEL_LINE = 11;
-        private static final float VALUE_LINE = 13;
-        private static final float ROW_GAP = 9;
+        private static final float BOX_WIDTH = 150;
+        private static final float BOX_HEIGHT = 54;
+        private static final float BOX_TOP_OFFSET = 26;
+        private static final float BIG_HEADER_HEIGHT = BOX_TOP_OFFSET + BOX_HEIGHT + 6;
+        private static final float SLIM_HEADER_HEIGHT = 18;
+        private static final float FOOTER_HEIGHT = 16;
+        private static final float COL_GAP = 14;
+        private static final int COL_COUNT = 3;
+        private static final float COL_WIDTH = (CONTENT_WIDTH - (COL_COUNT - 1) * COL_GAP) / COL_COUNT;
+        private static final float LABEL_LINE = 8.5f;
+        private static final float VALUE_LINE = 10;
+        private static final float ROW_GAP = 3;
 
         private static final PDFont BOLD = PDType1Font.HELVETICA_BOLD;
         private static final PDFont REGULAR = PDType1Font.HELVETICA;
@@ -124,8 +125,6 @@ public class PdfExportService {
         private static final Color GRAY_700 = new Color(70, 70, 70);
         private static final Color GRAY_500 = new Color(130, 130, 130);
         private static final Color GRAY_300 = new Color(205, 205, 205);
-        private static final Color GRAY_100 = new Color(245, 245, 245);
-        private static final Color WHITE = Color.WHITE;
 
         private final PDDocument doc;
         private PDPageContentStream stream;
@@ -159,10 +158,10 @@ public class PdfExportService {
             this.docSurveyId = surveyId;
             float topY = PAGE_HEIGHT - MARGIN;
 
-            draw(BOLD, 19, MARGIN, topY - 18, BLACK, title);
-            draw(REGULAR, 9.5f, MARGIN, topY - 33, GRAY_700, "Household Health Assessment Record");
-            String generated = "Generated " + java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("d MMM yyyy"));
-            draw(REGULAR, 8.5f, MARGIN, topY - 48, GRAY_500, generated);
+            draw(BOLD, 14.5f, MARGIN, topY - 13, BLACK, title);
+            String meta = "Household Health Assessment Record  |  Generated "
+                    + java.time.LocalDate.now().format(DateTimeFormatter.ofPattern("d MMM yyyy"));
+            draw(REGULAR, 7.5f, MARGIN, topY - 25, GRAY_700, meta);
 
             float boxX = PAGE_WIDTH - MARGIN - BOX_WIDTH;
             float boxTop = topY - BOX_TOP_OFFSET;
@@ -175,36 +174,36 @@ public class PdfExportService {
             };
             for (int i = 0; i < rows.length; i++) {
                 float rowTop = boxTop - i * rowH;
-                draw(BOLD, 7, boxX + 10, rowTop - 12, GRAY_700, rows[i][0]);
-                draw(BOLD, i == 0 ? 13 : 10.5f, boxX + 10, rowTop - (i == 0 ? 25 : 24), BLACK, displayValue(rows[i][1]));
+                draw(BOLD, 6, boxX + 8, rowTop - 7, GRAY_700, rows[i][0]);
+                draw(BOLD, i == 0 ? 10.5f : 8.5f, boxX + 8, rowTop - (i == 0 ? 17 : 15), BLACK, displayValue(rows[i][1]));
                 if (i > 0) {
-                    strokeLine(boxX, rowTop, boxX + BOX_WIDTH, rowTop, GRAY_300, 0.6f);
+                    strokeLine(boxX, rowTop, boxX + BOX_WIDTH, rowTop, GRAY_300, 0.5f);
                 }
             }
 
             float ruleY = topY - BIG_HEADER_HEIGHT;
-            strokeLine(MARGIN, ruleY, PAGE_WIDTH - MARGIN, ruleY, BLACK, 1.6f);
-            y = ruleY - 22;
+            strokeLine(MARGIN, ruleY, PAGE_WIDTH - MARGIN, ruleY, BLACK, 1.3f);
+            y = ruleY - 12;
         }
 
         private void drawSlimHeader() throws IOException {
-            draw(BOLD, 10, MARGIN, PAGE_HEIGHT - 20, BLACK, docTitle);
+            draw(BOLD, 8, MARGIN, PAGE_HEIGHT - 13, BLACK, docTitle);
             String meta = "Survey ID: " + docSurveyId;
-            float metaWidth = REGULAR.getStringWidth(sanitize(meta)) / 1000 * 8.5f;
-            draw(REGULAR, 8.5f, PAGE_WIDTH - MARGIN - metaWidth, PAGE_HEIGHT - 20, GRAY_700, meta);
+            float metaWidth = REGULAR.getStringWidth(sanitize(meta)) / 1000 * 7.5f;
+            draw(REGULAR, 7.5f, PAGE_WIDTH - MARGIN - metaWidth, PAGE_HEIGHT - 13, GRAY_700, meta);
             strokeLine(MARGIN, PAGE_HEIGHT - SLIM_HEADER_HEIGHT, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - SLIM_HEADER_HEIGHT,
-                    BLACK, 1f);
-            y = PAGE_HEIGHT - SLIM_HEADER_HEIGHT - 20;
+                    BLACK, 0.8f);
+            y = PAGE_HEIGHT - SLIM_HEADER_HEIGHT - 12;
         }
 
         void section(String value) throws IOException {
             flushGrid();
-            ensureSpace(30);
-            y -= 4;
-            draw(BOLD, 12, MARGIN, y - 10, BLACK, value.toUpperCase());
-            y -= 16;
-            strokeLine(MARGIN, y, PAGE_WIDTH - MARGIN, y, BLACK, 1f);
-            y -= 14;
+            ensureSpace(18);
+            y -= 1;
+            draw(BOLD, 10, MARGIN, y - 8, BLACK, value.toUpperCase());
+            y -= 11;
+            strokeLine(MARGIN, y, PAGE_WIDTH - MARGIN, y, BLACK, 0.9f);
+            y -= 8;
         }
 
         void field(String fieldLabel, String value) {
@@ -213,27 +212,31 @@ public class PdfExportService {
 
         private void flushGrid() throws IOException {
             if (pendingFields.isEmpty()) return;
-            for (int i = 0; i < pendingFields.size(); i += 2) {
-                String[] left = pendingFields.get(i);
-                String[] right = i + 1 < pendingFields.size() ? pendingFields.get(i + 1) : null;
-                List<String> leftLines = wrap(displayValue(left[1]), REGULAR, 10.5f, COL_WIDTH);
-                List<String> rightLines = right == null ? null : wrap(displayValue(right[1]), REGULAR, 10.5f, COL_WIDTH);
-                float leftHeight = LABEL_LINE + leftLines.size() * VALUE_LINE;
-                float rightHeight = rightLines == null ? 0 : LABEL_LINE + rightLines.size() * VALUE_LINE;
-                float rowHeight = Math.max(leftHeight, rightHeight);
+            for (int i = 0; i < pendingFields.size(); i += COL_COUNT) {
+                int rowCount = Math.min(COL_COUNT, pendingFields.size() - i);
+                float rowHeight = 0;
+                List<List<String>> lineSets = new ArrayList<>();
+                for (int c = 0; c < rowCount; c++) {
+                    String[] entry = pendingFields.get(i + c);
+                    List<String> lines = wrap(displayValue(entry[1]), REGULAR, 9, COL_WIDTH);
+                    lineSets.add(lines);
+                    rowHeight = Math.max(rowHeight, LABEL_LINE + lines.size() * VALUE_LINE);
+                }
                 ensureSpace(rowHeight + ROW_GAP);
-                drawFieldCell(MARGIN, left[0], leftLines);
-                if (right != null) drawFieldCell(MARGIN + COL_WIDTH + COL_GAP, right[0], rightLines);
+                for (int c = 0; c < rowCount; c++) {
+                    float x = MARGIN + c * (COL_WIDTH + COL_GAP);
+                    drawFieldCell(x, pendingFields.get(i + c)[0], lineSets.get(c));
+                }
                 y -= rowHeight + ROW_GAP;
             }
             pendingFields.clear();
         }
 
         private void drawFieldCell(float x, String fieldLabel, List<String> valueLines) throws IOException {
-            draw(BOLD, 8.5f, x, y, GRAY_700, fieldLabel.toUpperCase());
+            draw(BOLD, 7, x, y, GRAY_700, fieldLabel.toUpperCase());
             boolean blank = valueLines.size() == 1 && "-".equals(valueLines.get(0));
             for (int i = 0; i < valueLines.size(); i++) {
-                draw(REGULAR, 10.5f, x, y - LABEL_LINE - i * VALUE_LINE, blank ? GRAY_500 : BLACK, valueLines.get(i));
+                draw(REGULAR, 9, x, y - LABEL_LINE - i * VALUE_LINE, blank ? GRAY_500 : BLACK, valueLines.get(i));
             }
         }
 
@@ -244,41 +247,66 @@ public class PdfExportService {
         void healthTable(String itemColumnLabel, String[] keys, List<HealthItemEntry> items, SurveyMapper mapper)
                 throws IOException {
             flushGrid();
-            float itemW = CONTENT_WIDTH * 0.42f;
-            float presentW = CONTENT_WIDTH * 0.13f;
-            float detailW = CONTENT_WIDTH - itemW - presentW;
-            float headerH = 20;
-            ensureSpace(headerH);
-            fillRect(MARGIN, y - headerH, CONTENT_WIDTH, headerH, BLACK);
-            draw(BOLD, 9, MARGIN + 6, y - 14, WHITE, itemColumnLabel.toUpperCase());
-            draw(BOLD, 9, MARGIN + itemW + 6, y - 14, WHITE, "PRESENT");
-            draw(BOLD, 9, MARGIN + itemW + presentW + 6, y - 14, WHITE, "DETAILS");
-            y -= headerH;
-
-            int rowIndex = 0;
+            List<String> presentKeys = new ArrayList<>();
+            List<String> absentLabels = new ArrayList<>();
             for (String key : keys) {
+                if (HealthItemEntry.isPresent(items, key)) {
+                    presentKeys.add(key);
+                } else {
+                    absentLabels.add(mapper.label(key));
+                }
+            }
+
+            if (presentKeys.isEmpty()) {
+                ensureSpace(12);
+                draw(REGULAR, 8.5f, MARGIN, y - 8, GRAY_700, itemColumnLabel + "s: none reported.");
+                y -= 16;
+                return;
+            }
+
+            float itemW = CONTENT_WIDTH * 0.28f;
+            float presentW = CONTENT_WIDTH * 0.1f;
+            float detailW = CONTENT_WIDTH - itemW - presentW;
+            float headerH = 13;
+            ensureSpace(headerH);
+            draw(BOLD, 7, MARGIN, y - 9, GRAY_700, itemColumnLabel.toUpperCase());
+            draw(BOLD, 7, MARGIN + itemW, y - 9, GRAY_700, "PRESENT");
+            draw(BOLD, 7, MARGIN + itemW + presentW, y - 9, GRAY_700, "DETAILS");
+            y -= headerH;
+            strokeLine(MARGIN, y, PAGE_WIDTH - MARGIN, y, BLACK, 0.8f);
+            y -= 9;
+
+            for (String key : presentKeys) {
                 HealthItemEntry item = HealthItemEntry.findByKey(items, key);
-                boolean present = item != null && Boolean.TRUE.equals(item.getPresent());
-                String details = present ? visitDetails(item) : "";
-                List<String> detailLines = details.isEmpty() ? List.of() : wrap(details, REGULAR, 8.5f, detailW - 12);
-                float rowH = Math.max(1, detailLines.size()) * 12 + 8;
+                String details = visitDetails(item);
+                List<String> detailLines = details.isEmpty() ? List.of() : wrap(details, REGULAR, 7.5f, detailW - 8);
+                float rowH = Math.max(1, detailLines.size()) * 9 + 4;
                 ensureSpace(rowH);
-                Color bg = rowIndex % 2 == 0 ? WHITE : GRAY_100;
-                fillRect(MARGIN, y - rowH, CONTENT_WIDTH, rowH, bg);
-                draw(REGULAR, 9.5f, MARGIN + 6, y - 14, BLACK, mapper.label(key));
-                draw(BOLD, 9, MARGIN + itemW + 6, y - 14, present ? BLACK : GRAY_500, present ? "YES" : "No");
+                draw(REGULAR, 8.5f, MARGIN, y - 8, BLACK, mapper.label(key));
+                draw(BOLD, 7.5f, MARGIN + itemW, y - 8, BLACK, "YES");
                 if (detailLines.isEmpty()) {
-                    draw(REGULAR, 8.5f, MARGIN + itemW + presentW + 6, y - 14, GRAY_500, "-");
+                    draw(REGULAR, 7.5f, MARGIN + itemW + presentW, y - 8, GRAY_500, "-");
                 } else {
                     for (int i = 0; i < detailLines.size(); i++) {
-                        draw(REGULAR, 8.5f, MARGIN + itemW + presentW + 6, y - 12 - i * 12, GRAY_700, detailLines.get(i));
+                        draw(REGULAR, 7.5f, MARGIN + itemW + presentW, y - 8 - i * 9, GRAY_700, detailLines.get(i));
                     }
                 }
-                strokeLine(MARGIN, y - rowH, PAGE_WIDTH - MARGIN, y - rowH, GRAY_300, 0.5f);
+                strokeLine(MARGIN, y - rowH, PAGE_WIDTH - MARGIN, y - rowH, GRAY_300, 0.4f);
                 y -= rowH;
-                rowIndex++;
             }
-            y -= 12;
+
+            if (!absentLabels.isEmpty()) {
+                y -= 3;
+                String line = "Also screened, not reported: " + String.join(", ", absentLabels) + ".";
+                List<String> lines = wrap(line, OBLIQUE, 7.5f, CONTENT_WIDTH);
+                float h = lines.size() * 9 + 2;
+                ensureSpace(h);
+                for (int i = 0; i < lines.size(); i++) {
+                    draw(OBLIQUE, 7.5f, MARGIN, y - 8 - i * 9, GRAY_500, lines.get(i));
+                }
+                y -= h;
+            }
+            y -= 5;
         }
 
         void otherIssues(List<HealthItemEntry> items) throws IOException {
@@ -289,23 +317,23 @@ public class PdfExportService {
                     if (item.getDescription() == null || item.getDescription().isBlank()) continue;
                     any = true;
                     String details = visitDetails(item);
-                    List<String> descLines = wrap(item.getDescription(), REGULAR, 10, CONTENT_WIDTH - 16);
+                    List<String> descLines = wrap(item.getDescription(), REGULAR, 9, CONTENT_WIDTH - 12);
                     List<String> detailLines = details.isEmpty() ? List.of()
-                            : wrap(details, OBLIQUE, 8.5f, CONTENT_WIDTH - 16);
-                    float h = descLines.size() * VALUE_LINE + detailLines.size() * 11 + 10;
+                            : wrap(details, OBLIQUE, 7.5f, CONTENT_WIDTH - 12);
+                    float h = descLines.size() * VALUE_LINE + detailLines.size() * 9 + 6;
                     ensureSpace(h);
-                    fillRect(MARGIN, y - 11, 4, 13, BLACK);
+                    fillRect(MARGIN, y - 9, 3, 11, BLACK);
                     for (int i = 0; i < descLines.size(); i++) {
-                        draw(REGULAR, 10, MARGIN + 12, y - 10 - i * VALUE_LINE, BLACK, descLines.get(i));
+                        draw(REGULAR, 9, MARGIN + 10, y - 8 - i * VALUE_LINE, BLACK, descLines.get(i));
                     }
-                    float dy = y - 10 - descLines.size() * VALUE_LINE;
+                    float dy = y - 8 - descLines.size() * VALUE_LINE;
                     for (String d : detailLines) {
-                        draw(OBLIQUE, 8.5f, MARGIN + 12, dy, GRAY_700, d);
-                        dy -= 11;
+                        draw(OBLIQUE, 7.5f, MARGIN + 10, dy, GRAY_700, d);
+                        dy -= 9;
                     }
                     y -= h;
                 }
-                y -= 8;
+                y -= 2;
             }
             if (!any) {
                 field("Other Issues", "None reported");
@@ -402,23 +430,23 @@ public class PdfExportService {
                 PDPage page = doc.getPage(i);
                 try (PDPageContentStream fs = new PDPageContentStream(doc, page, AppendMode.APPEND, true)) {
                     fs.setStrokingColor(GRAY_300);
-                    fs.setLineWidth(0.6f);
-                    fs.moveTo(MARGIN, MARGIN - 6);
-                    fs.lineTo(PAGE_WIDTH - MARGIN, MARGIN - 6);
+                    fs.setLineWidth(0.5f);
+                    fs.moveTo(MARGIN, MARGIN - 4);
+                    fs.lineTo(PAGE_WIDTH - MARGIN, MARGIN - 4);
                     fs.stroke();
 
                     fs.setNonStrokingColor(GRAY_500);
                     fs.beginText();
-                    fs.setFont(REGULAR, 8);
-                    fs.newLineAtOffset(MARGIN, MARGIN - 18);
+                    fs.setFont(REGULAR, 7);
+                    fs.newLineAtOffset(MARGIN, MARGIN - 14);
                     fs.showText("Air Pollution & Community Health Survey");
                     fs.endText();
 
                     String pageLabel = "Page " + (i + 1) + " of " + total;
-                    float w = REGULAR.getStringWidth(pageLabel) / 1000 * 8;
+                    float w = REGULAR.getStringWidth(pageLabel) / 1000 * 7;
                     fs.beginText();
-                    fs.setFont(REGULAR, 8);
-                    fs.newLineAtOffset(PAGE_WIDTH - MARGIN - w, MARGIN - 18);
+                    fs.setFont(REGULAR, 7);
+                    fs.newLineAtOffset(PAGE_WIDTH - MARGIN - w, MARGIN - 14);
                     fs.showText(pageLabel);
                     fs.endText();
                 }
