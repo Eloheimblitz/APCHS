@@ -848,6 +848,54 @@ th {
   text-transform: uppercase;
 }
 
+/* ---------- Pagination ---------- */
+
+.pagination {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pagination-pages {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.pagination-page {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  cursor: pointer;
+  font-weight: 600;
+  min-width: 34px;
+  padding: 6px 8px;
+}
+
+.pagination-page:hover {
+  border-color: var(--color-border-strong);
+}
+
+.pagination-page.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.pagination-ellipsis {
+  color: var(--color-text-subtle);
+  padding: 0 4px;
+}
+
+.pagination-summary {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  margin-left: auto;
+}
+
 tbody tr:last-child td {
   border-bottom: 0;
 }

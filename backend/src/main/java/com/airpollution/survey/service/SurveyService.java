@@ -1,6 +1,7 @@
 package com.airpollution.survey.service;
 
 import com.airpollution.survey.dto.SurveyCreateRequest;
+import com.airpollution.survey.dto.SurveyPageResponse;
 import com.airpollution.survey.dto.SurveyResponse;
 import com.airpollution.survey.dto.SurveyUpdateRequest;
 import com.airpollution.survey.entity.SurveyRecord;
@@ -16,6 +17,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -66,15 +68,25 @@ public class SurveyService {
         return repository.existsBySurveyId(surveyId.trim());
     }
 
+    private static final int DEFAULT_PAGE_SIZE = 20;
+
     @Transactional(readOnly = true)
-    public List<SurveyResponse> list(Map<String, String> filters, Authentication authentication) {
+    public SurveyPageResponse list(Map<String, String> filters, int page, int size, Authentication authentication) {
         List<SurveyRecord> records = findFiltered(filters, authentication);
-        return records.stream().map(mapper::toResponse).toList();
+        int safePage = Math.max(page, 0);
+        int safeSize = size <= 0 ? DEFAULT_PAGE_SIZE : size;
+        int totalElements = records.size();
+        int totalPages = totalElements == 0 ? 0 : (int) Math.ceil(totalElements / (double) safeSize);
+        int fromIndex = Math.min(safePage * safeSize, totalElements);
+        int toIndex = Math.min(fromIndex + safeSize, totalElements);
+        List<SurveyResponse> content = records.subList(fromIndex, toIndex).stream().map(mapper::toResponse).toList();
+        return new SurveyPageResponse(content, safePage, safeSize, totalElements, totalPages);
     }
 
     @Transactional(readOnly = true)
     public List<SurveyRecord> findFiltered(Map<String, String> filters, Authentication authentication) {
-        List<SurveyRecord> records = repository.findAll(specification(filters, authentication));
+        List<SurveyRecord> records = repository.findAll(specification(filters, authentication),
+                Sort.by(Sort.Direction.DESC, "createdAt"));
         if (hasValue(filters.get("symptom"))) {
             Set<Long> matchingIds = new HashSet<>(repository.findIdsBySymptomPresent(filters.get("symptom")));
             records = records.stream().filter(r -> matchingIds.contains(r.getId())).toList();

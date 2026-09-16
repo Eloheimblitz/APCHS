@@ -1,13 +1,13 @@
 package com.airpollution.survey.controller;
 
 import com.airpollution.survey.dto.SurveyCreateRequest;
+import com.airpollution.survey.dto.SurveyPageResponse;
 import com.airpollution.survey.dto.SurveyResponse;
 import com.airpollution.survey.dto.SurveyUpdateRequest;
 import com.airpollution.survey.entity.SurveyRecord;
 import com.airpollution.survey.service.PdfExportService;
 import com.airpollution.survey.service.SurveyService;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.Map;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -47,8 +47,11 @@ public class SurveyController {
     }
 
     @GetMapping
-    public List<SurveyResponse> list(@RequestParam Map<String, String> filters, Authentication authentication) {
-        return surveyService.list(filters, authentication);
+    public SurveyPageResponse list(@RequestParam Map<String, String> filters,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "20") int size,
+                                    Authentication authentication) {
+        return surveyService.list(filters, page, size, authentication);
     }
 
     @GetMapping("/{id}")

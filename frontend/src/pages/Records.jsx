@@ -11,9 +11,15 @@ const emptyFilters = {
   cookingFuel: ''
 };
 
+const PAGE_SIZE = 20;
+
 export default function Records() {
   const [filters, setFilters] = useState(emptyFilters);
   const [records, setRecords] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [reloadToken, setReloadToken] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const session = getSession();
@@ -22,25 +28,30 @@ export default function Records() {
 
   useEffect(() => {
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, reloadToken]);
 
   useEffect(() => {
     if (isFirstRun.current) {
       isFirstRun.current = false;
       return;
     }
-    const handle = setTimeout(() => load(), 400);
+    const handle = setTimeout(() => {
+      setPage(0);
+      setReloadToken((t) => t + 1);
+    }, 400);
     return () => clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.surveyId]);
 
-  async function load(event) {
-    event?.preventDefault();
+  async function load() {
     setLoading(true);
     setError('');
     try {
-      const { data } = await api.get('/surveys', { params: activeFilters() });
-      setRecords(data);
+      const { data } = await api.get('/surveys', { params: { ...activeFilters(), page, size: PAGE_SIZE } });
+      setRecords(data.content);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
     } catch {
       setError('Unable to load survey records.');
     } finally {
@@ -48,10 +59,44 @@ export default function Records() {
     }
   }
 
+  function applyFilters(event) {
+    event?.preventDefault();
+    setPage(0);
+    setReloadToken((t) => t + 1);
+  }
+
+  function clearFilters() {
+    setFilters(emptyFilters);
+    setPage(0);
+    setReloadToken((t) => t + 1);
+  }
+
+  function goToPage(target) {
+    setPage(Math.max(0, Math.min(target, totalPages - 1)));
+  }
+
+  function paginationItems() {
+    const numbers = [];
+    const add = (p) => { if (!numbers.includes(p)) numbers.push(p); };
+    add(0);
+    for (let p = page - 1; p <= page + 1; p++) {
+      if (p >= 0 && p < totalPages) add(p);
+    }
+    add(totalPages - 1);
+    numbers.sort((a, b) => a - b);
+
+    const items = [];
+    numbers.forEach((p, idx) => {
+      if (idx > 0 && p - numbers[idx - 1] > 1) items.push({ type: 'ellipsis', key: `e-${p}` });
+      items.push({ type: 'page', value: p, key: `p-${p}` });
+    });
+    return items;
+  }
+
   async function remove(id) {
     if (!confirm('Delete this survey record?')) return;
     await api.delete(`/surveys/${id}`);
-    load();
+    setReloadToken((t) => t + 1);
   }
 
   async function exportFile(type) {
@@ -79,7 +124,7 @@ export default function Records() {
         <Link className="button-link" to="/surveys/new">Add survey</Link>
       </header>
 
-      <form className="filters" onSubmit={load}>
+      <form className="filters" onSubmit={applyFilters}>
         <input
           type="text"
           placeholder="Search Survey ID"
@@ -97,7 +142,7 @@ export default function Records() {
           {optionSets.cookingFuel.map((item) => <option key={item} value={item}>{labelize(item)}</option>)}
         </select>
         <button>Apply</button>
-        <button type="button" className="secondary-button" onClick={() => setFilters(emptyFilters)}>Clear</button>
+        <button type="button" className="secondary-button" onClick={clearFilters}>Clear</button>
       </form>
 
       {isAdmin && (
@@ -170,6 +215,41 @@ export default function Records() {
           </table>
         )}
       </div>
+
+      {!loading && totalElements > 0 && (
+        <div className="pagination">
+          <button type="button" className="secondary-button" onClick={() => goToPage(page - 1)} disabled={page === 0}>
+            Previous
+          </button>
+          <div className="pagination-pages">
+            {paginationItems().map((item) =>
+              item.type === 'ellipsis' ? (
+                <span key={item.key} className="pagination-ellipsis">&hellip;</span>
+              ) : (
+                <button
+                  key={item.key}
+                  type="button"
+                  className={item.value === page ? 'pagination-page active' : 'pagination-page'}
+                  onClick={() => goToPage(item.value)}
+                >
+                  {item.value + 1}
+                </button>
+              )
+            )}
+          </div>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => goToPage(page + 1)}
+            disabled={page >= totalPages - 1}
+          >
+            Next
+          </button>
+          <span className="pagination-summary">{totalElements} record{totalElements === 1 ? '' : 's'}</span>
+        </div>
+      )}
+
+      {!loading && totalElements === 0 && <p className="muted">No survey records found.</p>}
     </div>
   );
 }
