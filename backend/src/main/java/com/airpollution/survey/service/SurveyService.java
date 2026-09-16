@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class SurveyService {
+    private static final Logger log = LoggerFactory.getLogger(SurveyService.class);
+
     private final SurveyRecordRepository repository;
     private final SurveyMapper mapper;
 
@@ -46,8 +50,15 @@ public class SurveyService {
         try {
             return mapper.toResponse(repository.save(record));
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + surveyId + "' is already in use");
+            throw conflictOnSave(e, surveyId);
         }
+    }
+
+    private ResponseStatusException conflictOnSave(DataIntegrityViolationException e, String surveyId) {
+        // The transaction is aborted at this point (Postgres rejects further statements on it),
+        // so we can't safely re-query here - just log the real cause for later diagnosis.
+        log.warn("Survey save failed a database constraint for surveyId '{}'", surveyId, e);
+        return new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + surveyId + "' is already in use");
     }
 
     @Transactional(readOnly = true)
@@ -99,7 +110,7 @@ public class SurveyService {
         try {
             return mapper.toResponse(repository.save(record));
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + record.getSurveyId() + "' is already in use");
+            throw conflictOnSave(e, record.getSurveyId());
         }
     }
 
