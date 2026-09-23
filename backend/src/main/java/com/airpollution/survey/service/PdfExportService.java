@@ -86,7 +86,7 @@ public class PdfExportService {
 
             w.section("G. Other Issues");
             w.otherIssues(r.getOtherIssues());
-            w.field("Remarks", text(r.getRemarks()));
+            w.fullWidthField("Remarks", text(r.getRemarks()));
 
             w.close();
             w.paginate();
@@ -244,6 +244,19 @@ public class PdfExportService {
             return value == null || value.isBlank() ? "-" : value;
         }
 
+        void fullWidthField(String fieldLabel, String value) throws IOException {
+            flushGrid();
+            List<String> lines = wrap(displayValue(value), REGULAR, 9, CONTENT_WIDTH);
+            float h = LABEL_LINE + lines.size() * VALUE_LINE;
+            ensureSpace(h);
+            draw(BOLD, 7, MARGIN, y, GRAY_700, fieldLabel.toUpperCase());
+            boolean blank = lines.size() == 1 && "-".equals(lines.get(0));
+            for (int i = 0; i < lines.size(); i++) {
+                draw(REGULAR, 9, MARGIN, y - LABEL_LINE - i * VALUE_LINE, blank ? GRAY_500 : BLACK, lines.get(i));
+            }
+            y -= h;
+        }
+
         void healthTable(String itemColumnLabel, String[] keys, List<HealthItemEntry> items, SurveyMapper mapper)
                 throws IOException {
             flushGrid();
@@ -333,7 +346,7 @@ public class PdfExportService {
                     }
                     y -= h;
                 }
-                y -= 2;
+                y -= 10;
             }
             if (!any) {
                 field("Other Issues", "None reported");
