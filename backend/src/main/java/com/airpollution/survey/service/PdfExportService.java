@@ -50,7 +50,7 @@ public class PdfExportService {
 
             w.section("B. Demographics");
             w.field("Age", text(r.getAge()));
-            w.field("Duration Of Stay At Study Area", text(r.getDurationOfStayAtStudyArea()));
+            w.field("Duration Of Stay At Study Area (In Years)", text(r.getDurationOfStayAtStudyArea()));
             w.field("Gender", label(r.getGender()));
             w.field("Tobacco", labelList(r.getTobaccoUse()));
             w.field("Alcohol", bool(r.getAlcohol()));

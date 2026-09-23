@@ -28,7 +28,7 @@ public class ExportService {
     private static final String[] BASE_HEADERS = {
             "Survey ID", "Survey Date", "Household ID", "Submitted By", "Surveyor ID", "Consent Obtained",
             "Study Area", "Latitude", "Longitude", "GPS Accuracy", "Grid ID", "Distance To Highway", "Distance To Factory",
-            "Age", "Duration Of Stay At Study Area", "Gender", "Tobacco Use", "Alcohol",
+            "Age", "Duration Of Stay At Study Area (In Years)", "Gender", "Tobacco Use", "Alcohol",
             "Ethnicity", "Other Ethnicity", "Education", "Other Education", "Occupation", "Other Occupation",
             "Cooking", "Wood/Coal Cooking Location",
             "Has Children", "Number Of Children", "Child Birthplace", "Child Vaccination",

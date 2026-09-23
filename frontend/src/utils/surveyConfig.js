@@ -120,7 +120,7 @@ export const sections = [
     title: 'B. Demographics',
     fields: [
       { name: 'age', label: 'Age', type: 'number', required: true },
-      { name: 'durationOfStayAtStudyArea', label: 'Duration of stay at study area' },
+      { name: 'durationOfStayAtStudyArea', label: 'Duration of stay at study area (in years)' },
       { name: 'gender', label: 'Gender', type: 'select', options: optionSets.gender, required: true },
       { name: 'tobaccoUse', label: 'Tobacco', type: 'multiselect', options: optionSets.tobaccoUse },
       { name: 'alcohol', label: 'Alcohol', type: 'boolean' },
