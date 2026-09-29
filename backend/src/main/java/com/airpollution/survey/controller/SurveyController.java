@@ -50,8 +50,9 @@ public class SurveyController {
     public SurveyPageResponse list(@RequestParam Map<String, String> filters,
                                     @RequestParam(defaultValue = "0") int page,
                                     @RequestParam(defaultValue = "20") int size,
+                                    @RequestParam(defaultValue = "asc") String sortDir,
                                     Authentication authentication) {
-        return surveyService.list(filters, page, size, authentication);
+        return surveyService.list(filters, page, size, sortDir, authentication);
     }
 
     @GetMapping("/{id}")

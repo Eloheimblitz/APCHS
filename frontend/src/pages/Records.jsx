@@ -20,6 +20,7 @@ export default function Records() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [reloadToken, setReloadToken] = useState(0);
+  const [sortDir, setSortDir] = useState('asc');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const session = getSession();
@@ -29,7 +30,7 @@ export default function Records() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, reloadToken]);
+  }, [page, reloadToken, sortDir]);
 
   useEffect(() => {
     if (isFirstRun.current) {
@@ -48,7 +49,7 @@ export default function Records() {
     setLoading(true);
     setError('');
     try {
-      const { data } = await api.get('/surveys', { params: { ...activeFilters(), page, size: PAGE_SIZE } });
+      const { data } = await api.get('/surveys', { params: { ...activeFilters(), page, size: PAGE_SIZE, sortDir } });
       setRecords(data.content);
       setTotalPages(data.totalPages);
       setTotalElements(data.totalElements);
@@ -73,6 +74,11 @@ export default function Records() {
 
   function goToPage(target) {
     setPage(Math.max(0, Math.min(target, totalPages - 1)));
+  }
+
+  function toggleSort() {
+    setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    setPage(0);
   }
 
   function paginationItems() {
@@ -182,7 +188,9 @@ export default function Records() {
           <table>
             <thead>
               <tr>
-                <th>Survey ID</th>
+                <th className="sortable-th" onClick={toggleSort}>
+                  Survey ID <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>
+                </th>
                 <th>Date</th>
                 <th>Study Area</th>
                 <th>Age</th>

@@ -848,6 +848,20 @@ th {
   text-transform: uppercase;
 }
 
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-th:hover {
+  color: var(--color-text);
+}
+
+.sort-indicator {
+  color: var(--color-primary);
+  font-size: 10px;
+}
+
 /* ---------- Pagination ---------- */
 
 .pagination {

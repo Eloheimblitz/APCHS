@@ -10,10 +10,13 @@ import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -69,10 +72,16 @@ public class SurveyService {
     }
 
     private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final Pattern SURVEY_ID_NUMBER = Pattern.compile("(\\d+)$");
 
     @Transactional(readOnly = true)
-    public SurveyPageResponse list(Map<String, String> filters, int page, int size, Authentication authentication) {
+    public SurveyPageResponse list(Map<String, String> filters, int page, int size, String sortDir,
+                                    Authentication authentication) {
         List<SurveyRecord> records = findFiltered(filters, authentication);
+        Comparator<SurveyRecord> bySurveyIdNumber = Comparator.comparingLong(this::surveyIdNumber);
+        records = records.stream()
+                .sorted("desc".equalsIgnoreCase(sortDir) ? bySurveyIdNumber.reversed() : bySurveyIdNumber)
+                .toList();
         int safePage = Math.max(page, 0);
         int safeSize = size <= 0 ? DEFAULT_PAGE_SIZE : size;
         int totalElements = records.size();
@@ -178,6 +187,13 @@ public class SurveyService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Survey ID '" + trimmed + "' is already in use");
         }
         return trimmed;
+    }
+
+    private long surveyIdNumber(SurveyRecord record) {
+        String surveyId = record.getSurveyId();
+        if (surveyId == null) return 0;
+        Matcher matcher = SURVEY_ID_NUMBER.matcher(surveyId);
+        return matcher.find() ? Long.parseLong(matcher.group(1)) : 0;
     }
 
     private void assertCanAccess(SurveyRecord record, Authentication authentication) {
