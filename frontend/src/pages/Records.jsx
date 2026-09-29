@@ -23,6 +23,8 @@ export default function Records() {
   const [sortDir, setSortDir] = useState('asc');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportError, setExportError] = useState('');
   const session = getSession();
   const isAdmin = session?.role === 'ADMIN';
   const isFirstRun = useRef(true);
@@ -106,10 +108,25 @@ export default function Records() {
   }
 
   async function exportFile(type) {
-    const responseType = 'blob';
-    const endpoint = type === 'csv' ? '/export/surveys.csv' : '/export/surveys.xlsx';
-    const { data } = await api.get(endpoint, { params: activeFilters(), responseType });
-    downloadBlob(data, `surveys.${type}`, type === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    const endpoint = type === 'csv' ? '/export/surveys.csv' : type === 'xlsx' ? '/export/surveys.xlsx' : '/export/surveys.pdf';
+    const contentType = type === 'csv' ? 'text/csv'
+      : type === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      : 'application/pdf';
+    const config = { params: activeFilters(), responseType: 'blob' };
+    if (type === 'pdf') {
+      config.timeout = 180000;
+      setExportingPdf(true);
+      setExportError('');
+    }
+    try {
+      const { data } = await api.get(endpoint, config);
+      downloadBlob(data, `surveys.${type}`, contentType);
+    } catch (err) {
+      if (type !== 'pdf') throw err;
+      setExportError('Unable to export PDF. There may be no records matching the current filters.');
+    } finally {
+      if (type === 'pdf') setExportingPdf(false);
+    }
   }
 
   function activeFilters() {
@@ -155,9 +172,13 @@ export default function Records() {
         <div className="export-row">
           <button className="secondary-button" onClick={() => exportFile('csv')}>Export CSV</button>
           <button className="secondary-button" onClick={() => exportFile('xlsx')}>Export Excel</button>
+          <button className="secondary-button" onClick={() => exportFile('pdf')} disabled={exportingPdf}>
+            {exportingPdf ? 'Exporting PDFs...' : 'Export All PDFs'}
+          </button>
         </div>
       )}
 
+      {exportError && <div className="alert error">{exportError}</div>}
       {error && <div className="alert error">{error}</div>}
       {!loading && (
         <div className="records-mobile-list">

@@ -33,62 +33,7 @@ public class PdfExportService {
     public byte[] generate(SurveyRecord r) {
         try (PDDocument doc = new PDDocument()) {
             Writer w = new Writer(doc);
-            w.header("Air Pollution & Community Health Survey", text(r.getSurveyId()), text(r.getHouseholdId()),
-                    text(r.getSurveyDate()));
-
-            w.section("A. Survey Information");
-            w.field("Survey Date", text(r.getSurveyDate()));
-            w.field("Surveyor Name", text(r.getSurveyorId()));
-            w.field("Consent Obtained", bool(r.getConsentObtained()));
-            w.field("Study Area", label(r.getStudyArea()));
-            w.field("Grid ID", text(r.getGridId()));
-            w.field("Latitude", text(r.getLatitude()));
-            w.field("Longitude", text(r.getLongitude()));
-            w.field("GPS Accuracy (m)", text(r.getGpsAccuracy()));
-            w.field("Distance To Highway", text(r.getDistanceToHighway()));
-            w.field("Distance To Factory", text(r.getDistanceToFactory()));
-
-            w.section("B. Demographics");
-            w.field("Age", text(r.getAge()));
-            w.field("Duration Of Stay At Study Area (In Years)", text(r.getDurationOfStayAtStudyArea()));
-            w.field("Gender", label(r.getGender()));
-            w.field("Tobacco", labelList(r.getTobaccoUse()));
-            w.field("Alcohol", bool(r.getAlcohol()));
-            w.field("Ethnicity", label(r.getEthnicity()));
-            w.field("Other Ethnicity", text(r.getOtherEthnicity()));
-            w.field("Education", label(r.getEducation()));
-            w.field("Other Education", text(r.getOtherEducation()));
-            w.field("Occupation", labelList(r.getOccupation()));
-            w.field("Other Occupation", text(r.getOtherOccupation()));
-
-            w.section("C. Cooking");
-            w.field("Cooking", labelList(r.getPrimaryCookingFuel()));
-            w.field("Wood/Coal Cooking Location", labelList(r.getWoodCoalCookingLocation()));
-
-            w.section("D. Children and Vaccination");
-            w.field("Do you have children?", bool(r.getHasChildren()));
-            w.field("Number Of Children", text(r.getNumberOfChildren()));
-            w.field("Child Birthplace", labelList(r.getChildBirthplace()));
-            w.field("Child Vaccination", label(r.getChildVaccination()));
-            w.field("Respondent Vaccination", label(r.getRespondentVaccination()));
-            w.field("MHIS/Smart Card", bool(r.getMhisSmartCard()));
-
-            w.section("E. Existing Health Conditions");
-            w.healthTable("Condition", SurveyCatalog.CONDITION_KEYS, r.getConditions(), mapper);
-            w.field("Type of Cancer", text(r.getCancerType()));
-            w.field("Worried about air pollution?", bool(r.getWorriedAboutAirPollution()));
-            w.field("What are you worried about?", labelList(r.getAirPollutionConcerns()));
-            w.field("Other concern", text(r.getOtherAirPollutionConcern()));
-
-            w.section("F. Symptoms (last 2 months)");
-            w.healthTable("Symptom", SurveyCatalog.SYMPTOM_KEYS, r.getSymptoms(), mapper);
-            w.field("Fever Duration", label(r.getFeverDuration()));
-
-            w.section("G. Other Issues");
-            w.otherIssues(r.getOtherIssues());
-            w.fullWidthField("Remarks", text(r.getRemarks()));
-
-            w.close();
+            renderRecord(w, r);
             w.paginate();
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -97,6 +42,85 @@ public class PdfExportService {
         } catch (IOException e) {
             throw new IllegalStateException("Unable to generate PDF", e);
         }
+    }
+
+    public byte[] generateBulk(List<SurveyRecord> records) {
+        if (records.isEmpty()) {
+            throw new IllegalArgumentException("No survey records to export");
+        }
+        try (PDDocument doc = new PDDocument()) {
+            Writer w = null;
+            for (SurveyRecord r : records) {
+                w = new Writer(doc);
+                renderRecord(w, r);
+            }
+            w.paginate();
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            doc.save(out);
+            return out.toByteArray();
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to generate PDF", e);
+        }
+    }
+
+    private void renderRecord(Writer w, SurveyRecord r) throws IOException {
+        w.header("Air Pollution & Community Health Survey", text(r.getSurveyId()), text(r.getHouseholdId()),
+                text(r.getSurveyDate()));
+
+        w.section("A. Survey Information");
+        w.field("Survey Date", text(r.getSurveyDate()));
+        w.field("Surveyor Name", text(r.getSurveyorId()));
+        w.field("Consent Obtained", bool(r.getConsentObtained()));
+        w.field("Study Area", label(r.getStudyArea()));
+        w.field("Grid ID", text(r.getGridId()));
+        w.field("Latitude", text(r.getLatitude()));
+        w.field("Longitude", text(r.getLongitude()));
+        w.field("GPS Accuracy (m)", text(r.getGpsAccuracy()));
+        w.field("Distance To Highway", text(r.getDistanceToHighway()));
+        w.field("Distance To Factory", text(r.getDistanceToFactory()));
+
+        w.section("B. Demographics");
+        w.field("Age", text(r.getAge()));
+        w.field("Duration Of Stay At Study Area (In Years)", text(r.getDurationOfStayAtStudyArea()));
+        w.field("Gender", label(r.getGender()));
+        w.field("Tobacco", labelList(r.getTobaccoUse()));
+        w.field("Alcohol", bool(r.getAlcohol()));
+        w.field("Ethnicity", label(r.getEthnicity()));
+        w.field("Other Ethnicity", text(r.getOtherEthnicity()));
+        w.field("Education", label(r.getEducation()));
+        w.field("Other Education", text(r.getOtherEducation()));
+        w.field("Occupation", labelList(r.getOccupation()));
+        w.field("Other Occupation", text(r.getOtherOccupation()));
+
+        w.section("C. Cooking");
+        w.field("Cooking", labelList(r.getPrimaryCookingFuel()));
+        w.field("Wood/Coal Cooking Location", labelList(r.getWoodCoalCookingLocation()));
+
+        w.section("D. Children and Vaccination");
+        w.field("Do you have children?", bool(r.getHasChildren()));
+        w.field("Number Of Children", text(r.getNumberOfChildren()));
+        w.field("Child Birthplace", labelList(r.getChildBirthplace()));
+        w.field("Child Vaccination", label(r.getChildVaccination()));
+        w.field("Respondent Vaccination", label(r.getRespondentVaccination()));
+        w.field("MHIS/Smart Card", bool(r.getMhisSmartCard()));
+
+        w.section("E. Existing Health Conditions");
+        w.healthTable("Condition", SurveyCatalog.CONDITION_KEYS, r.getConditions(), mapper);
+        w.field("Type of Cancer", text(r.getCancerType()));
+        w.field("Worried about air pollution?", bool(r.getWorriedAboutAirPollution()));
+        w.field("What are you worried about?", labelList(r.getAirPollutionConcerns()));
+        w.field("Other concern", text(r.getOtherAirPollutionConcern()));
+
+        w.section("F. Symptoms (last 2 months)");
+        w.healthTable("Symptom", SurveyCatalog.SYMPTOM_KEYS, r.getSymptoms(), mapper);
+        w.field("Fever Duration", label(r.getFeverDuration()));
+
+        w.section("G. Other Issues");
+        w.otherIssues(r.getOtherIssues());
+        w.fullWidthField("Remarks", text(r.getRemarks()));
+
+        w.close();
     }
 
     private static final class Writer {

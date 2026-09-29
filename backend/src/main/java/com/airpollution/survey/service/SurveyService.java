@@ -92,6 +92,10 @@ public class SurveyService {
         return new SurveyPageResponse(content, safePage, safeSize, totalElements, totalPages);
     }
 
+    public List<SurveyRecord> sortedBySurveyId(List<SurveyRecord> records) {
+        return records.stream().sorted(Comparator.comparingLong(this::surveyIdNumber)).toList();
+    }
+
     @Transactional(readOnly = true)
     public List<SurveyRecord> findFiltered(Map<String, String> filters, Authentication authentication) {
         List<SurveyRecord> records = repository.findAll(specification(filters, authentication),

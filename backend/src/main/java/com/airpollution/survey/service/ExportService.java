@@ -19,9 +19,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ExportService {
@@ -49,11 +51,13 @@ public class ExportService {
 
     private final SurveyService surveyService;
     private final SurveyMapper mapper;
+    private final PdfExportService pdfExportService;
     private final String[] headers;
 
-    public ExportService(SurveyService surveyService, SurveyMapper mapper) {
+    public ExportService(SurveyService surveyService, SurveyMapper mapper, PdfExportService pdfExportService) {
         this.surveyService = surveyService;
         this.mapper = mapper;
+        this.pdfExportService = pdfExportService;
         this.headers = buildHeaders();
     }
 
@@ -118,6 +122,15 @@ public class ExportService {
         } catch (Exception e) {
             throw new IllegalStateException("Unable to export Excel", e);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] pdf(Map<String, String> filters, Authentication authentication) {
+        List<SurveyRecord> records = surveyService.sortedBySurveyId(filtered(filters, authentication));
+        if (records.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No survey records match the current filters");
+        }
+        return pdfExportService.generateBulk(records);
     }
 
     private List<SurveyRecord> filtered(Map<String, String> filters, Authentication authentication) {

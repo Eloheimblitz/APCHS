@@ -35,6 +35,12 @@ public class ExportController {
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
+    @GetMapping("/surveys.pdf")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<byte[]> pdf(@RequestParam Map<String, String> filters, Authentication authentication) {
+        return file(exportService.pdf(filters, authentication), "surveys.pdf", "application/pdf");
+    }
+
     private ResponseEntity<byte[]> file(byte[] bytes, String filename, String contentType) {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build().toString())
