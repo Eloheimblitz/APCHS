@@ -447,7 +447,7 @@ textarea {
 .chart-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 380px));
 }
 
 .dashboard-section-title {
@@ -483,12 +483,12 @@ textarea {
 }
 
 .chart-viewport {
-  height: 170px;
+  height: 140px;
   position: relative;
 }
 
 .donut-viewport {
-  height: 160px;
+  height: 130px;
 }
 
 .donut-center {
@@ -498,19 +498,19 @@ textarea {
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-sm);
   display: grid;
-  height: 92px;
+  height: 76px;
   justify-items: center;
   left: 50%;
   pointer-events: none;
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 92px;
+  width: 76px;
 }
 
 .donut-center strong {
   color: var(--color-text);
-  font-size: 25px;
+  font-size: 21px;
   line-height: 1;
 }
 
@@ -535,10 +535,10 @@ textarea {
 .chart-legend {
   border-top: 1px solid var(--color-border);
   display: grid;
-  gap: 4px 8px;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  margin-top: 8px;
-  padding-top: 8px;
+  gap: 2px 6px;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  margin-top: 6px;
+  padding-top: 6px;
 }
 
 .chart-legend button {
@@ -548,12 +548,12 @@ textarea {
   border-radius: var(--radius-sm);
   color: #334155;
   display: grid;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
-  gap: 6px;
-  grid-template-columns: 10px minmax(0, 1fr) auto auto;
-  min-height: 26px;
-  padding: 4px 6px;
+  gap: 5px;
+  grid-template-columns: 8px minmax(0, 1fr) auto auto;
+  min-height: 22px;
+  padding: 3px 5px;
   text-align: left;
 }
 
