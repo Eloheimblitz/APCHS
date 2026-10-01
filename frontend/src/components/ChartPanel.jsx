@@ -16,8 +16,10 @@ import {
 const palette = ['#2563eb', '#0f766e', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#65a30d', '#c2410c'];
 
 const namedColors = {
-  YES: '#2563eb',
-  NO: '#94a3b8',
+  YES: '#16915a',
+  NO: '#cf2547',
+  NA: '#94a3b8',
+  UNKNOWN: '#cbd5e1',
   TRUE: '#2563eb',
   FALSE: '#94a3b8',
   GAS: '#2563eb',
@@ -26,17 +28,29 @@ const namedColors = {
   ELECTRICITY: '#0891b2'
 };
 
-export default function ChartPanel({ title, data = {}, type = 'bar', icon: IconComp, tone = 'blue' }) {
+export default function ChartPanel({
+  title,
+  data = {},
+  type = 'bar',
+  icon: IconComp,
+  tone = 'blue',
+  horizontal = false,
+  sortByValue = false,
+  subtitle,
+  height
+}) {
   const [activeIndex, setActiveIndex] = useState(null);
-  const rows = useMemo(() => Object.entries(data || {})
-    .filter(([, value]) => Number(value) > 0)
-    .map(([name, value], index) => ({
+  const rows = useMemo(() => {
+    let entries = Object.entries(data || {}).filter(([, value]) => Number(value) > 0);
+    if (sortByValue) entries = entries.sort((a, b) => Number(b[1]) - Number(a[1]));
+    return entries.map(([name, value], index) => ({
       key: name,
       name: formatName(name),
       shortName: compactName(name),
       value: Number(value),
       color: colorFor(name, index)
-    })), [data]);
+    }));
+  }, [data, sortByValue]);
 
   const total = rows.reduce((sum, row) => sum + row.value, 0);
 
@@ -51,7 +65,7 @@ export default function ChartPanel({ title, data = {}, type = 'bar', icon: IconC
           )}
           <div>
             <h2>{title}</h2>
-            <span>{total} total</span>
+            <span>{subtitle || `${total} total`}</span>
           </div>
         </div>
       </div>
@@ -63,17 +77,21 @@ export default function ChartPanel({ title, data = {}, type = 'bar', icon: IconC
         </div>
       ) : type === 'pie' ? (
         <PieChartView rows={rows} total={total} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+      ) : type === 'stacked' ? (
+        <StackedBarView rows={rows} total={total} />
+      ) : horizontal ? (
+        <HorizontalBarChartView rows={rows} total={total} activeIndex={activeIndex} setActiveIndex={setActiveIndex} minHeight={height} />
       ) : (
-        <BarChartView rows={rows} total={total} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
+        <BarChartView rows={rows} total={total} activeIndex={activeIndex} setActiveIndex={setActiveIndex} height={height} />
       )}
     </section>
   );
 }
 
-function BarChartView({ rows, total, activeIndex, setActiveIndex }) {
+function BarChartView({ rows, total, activeIndex, setActiveIndex, height }) {
   return (
     <>
-      <div className="chart-viewport">
+      <div className="chart-viewport" style={height ? { height } : undefined}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={rows} margin={{ top: 20, right: 8, left: -18, bottom: 8 }} onMouseLeave={() => setActiveIndex(null)}>
             <CartesianGrid stroke="#edf2f7" strokeDasharray="3 5" vertical={false} />
@@ -107,6 +125,74 @@ function BarChartView({ rows, total, activeIndex, setActiveIndex }) {
       </div>
       <ChartLegend rows={rows} activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
     </>
+  );
+}
+
+function HorizontalBarChartView({ rows, total, activeIndex, setActiveIndex, minHeight }) {
+  const height = Math.max(minHeight || 140, rows.length * 34);
+  return (
+    <div className="chart-viewport" style={{ height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={rows}
+          layout="vertical"
+          margin={{ top: 4, right: 36, left: 4, bottom: 4 }}
+          onMouseLeave={() => setActiveIndex(null)}
+        >
+          <CartesianGrid stroke="#edf2f7" strokeDasharray="3 5" horizontal={false} />
+          <XAxis type="number" allowDecimals={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 800 }} tickLine={false} />
+          <YAxis
+            type="category"
+            dataKey="name"
+            axisLine={false}
+            tick={{ fill: '#334155', fontSize: 12, fontWeight: 700 }}
+            tickLine={false}
+            width={150}
+          />
+          <Tooltip content={<ChartTooltip total={total} />} cursor={{ fill: 'rgba(37, 99, 235, 0.05)' }} />
+          <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={18} onMouseEnter={(_, index) => setActiveIndex(index)}>
+            {rows.map((row, index) => (
+              <Cell
+                key={row.key}
+                fill={row.color}
+                opacity={activeIndex === null || activeIndex === index ? 1 : 0.42}
+              />
+            ))}
+            <LabelList dataKey="value" position="right" fill="#334155" fontSize={11} fontWeight={900} />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function StackedBarView({ rows, total }) {
+  return (
+    <div className="stacked-bar-view">
+      <div className="stacked-bar-track">
+        {rows.map((row) => (
+          <div
+            key={row.key}
+            className="stacked-bar-segment"
+            style={{ width: `${total ? (row.value / total) * 100 : 0}%`, background: row.color }}
+            title={`${row.name}: ${row.value}`}
+          />
+        ))}
+      </div>
+      <div className="stacked-bar-legend">
+        {rows.map((row) => {
+          const percent = total ? Math.round((row.value / total) * 100) : 0;
+          return (
+            <div className="stacked-bar-item" key={row.key}>
+              <i style={{ background: row.color }} />
+              <span>{row.name}</span>
+              <strong>{percent}%</strong>
+              <small>({row.value})</small>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

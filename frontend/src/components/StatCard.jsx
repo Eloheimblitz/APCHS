@@ -1,4 +1,4 @@
-export default function StatCard({ label, value, tone = 'blue', icon: IconComp, breakdown }) {
+export default function StatCard({ label, value, tone = 'blue', icon: IconComp, breakdown, hint }) {
   return (
     <article className={`stat-card tone-${tone}`}>
       <div className="stat-card-main">
@@ -10,6 +10,7 @@ export default function StatCard({ label, value, tone = 'blue', icon: IconComp, 
         <div>
           <strong>{value ?? 0}</strong>
           <span>{label}</span>
+          {hint && <small className="stat-hint">{hint}</small>}
         </div>
       </div>
       {breakdown && breakdown.length > 0 && (

@@ -25,8 +25,14 @@ public class DashboardService {
     }
 
     @Transactional(readOnly = true)
-    public DashboardSummaryResponse summary(Authentication authentication) {
-        List<SurveyRecord> records = surveyService.findFiltered(Map.of(), authentication);
+    public DashboardSummaryResponse summary(Map<String, String> filters, Authentication authentication) {
+        List<SurveyRecord> records = surveyService.findFiltered(filters, authentication);
+        if (hasValue(filters.get("gender"))) {
+            records = records.stream().filter(r -> filters.get("gender").equalsIgnoreCase(r.getGender())).toList();
+        }
+        if (hasValue(filters.get("ageGroup"))) {
+            records = records.stream().filter(r -> filters.get("ageGroup").equals(ageBucket(r.getAge()))).toList();
+        }
         long totalHouseholds = records.size();
         long studyAreas = records.stream().map(SurveyRecord::getStudyArea).filter(v -> v != null && !v.isBlank()).distinct().count();
 
@@ -90,5 +96,9 @@ public class DashboardService {
 
     private String valueOrUnknown(String value) {
         return value == null || value.isBlank() ? "UNKNOWN" : value;
+    }
+
+    private boolean hasValue(String value) {
+        return value != null && !value.isBlank();
     }
 }
