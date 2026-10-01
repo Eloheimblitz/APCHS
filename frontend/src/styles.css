@@ -450,6 +450,17 @@ textarea {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
+.dashboard-section-title {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 800;
+  margin: 28px 0 14px;
+}
+
+.dashboard-section-title:first-of-type {
+  margin-top: 20px;
+}
+
 .chart-card {
   overflow: hidden;
   padding: 18px 18px 16px;

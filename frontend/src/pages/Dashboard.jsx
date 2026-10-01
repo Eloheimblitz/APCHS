@@ -19,12 +19,7 @@ export default function Dashboard() {
 
   const cards = [
     ['Total households surveyed', summary.totalHouseholdsSurveyed, 'blue'],
-    ['Study areas covered', summary.totalStudyAreasCovered, 'teal'],
-    ['Using wood/firewood', summary.householdsUsingWoodFirewood, 'amber'],
-    ['Smokers', summary.smokers, 'amber'],
-    ['Respiratory symptoms', summary.respondentsWithRespiratorySymptoms, 'rose'],
-    ['Hospital visits', summary.hospitalVisits, 'rose'],
-    ['Avg missed days', summary.averageMissedWorkSchoolDays, 'green']
+    ['Study areas covered', summary.totalStudyAreasCovered, 'teal']
   ];
 
   return (
@@ -43,9 +38,28 @@ export default function Dashboard() {
 
       <section className="chart-grid">
         <ChartPanel title="Survey count by study area" data={summary.surveyCountByStudyArea} />
-        <ChartPanel title="Cooking distribution" data={summary.cookingFuelDistribution} />
-        <ChartPanel title="Common symptoms count" data={summary.commonSymptomsCount} />
-        <ChartPanel title="Hospital visit yes/no" data={summary.hospitalVisitDistribution} type="pie" />
+      </section>
+
+      <h2 className="dashboard-section-title">Demographics</h2>
+      <section className="chart-grid">
+        <ChartPanel title="Gender" data={summary.genderDistribution} type="pie" />
+        <ChartPanel title="Age" data={summary.ageDistribution} />
+      </section>
+
+      <h2 className="dashboard-section-title">Vaccination</h2>
+      <section className="chart-grid">
+        <ChartPanel title="Child vaccination" data={summary.childVaccinationDistribution} type="pie" />
+        <ChartPanel title="Respondent vaccination" data={summary.respondentVaccinationDistribution} type="pie" />
+      </section>
+
+      <h2 className="dashboard-section-title">Existing Health Conditions</h2>
+      <section className="chart-grid">
+        <ChartPanel title="Conditions" data={summary.conditionsCount} />
+      </section>
+
+      <h2 className="dashboard-section-title">Symptoms</h2>
+      <section className="chart-grid">
+        <ChartPanel title="Common symptoms" data={summary.commonSymptomsCount} />
       </section>
     </div>
   );
