@@ -422,19 +422,19 @@ textarea {
 .stat-card {
   border-top: 3px solid var(--stat-accent, var(--color-primary));
   display: grid;
-  gap: 10px;
-  padding: 18px 18px 20px;
+  gap: 6px;
+  padding: 14px 16px 15px;
   position: relative;
 }
 
 .stat-card span {
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .stat-card strong {
-  font-size: 30px;
+  font-size: 24px;
   letter-spacing: -0.01em;
 }
 
@@ -445,6 +445,7 @@ textarea {
 .stat-card.tone-green { --stat-accent: var(--color-success); }
 
 .chart-grid {
+  align-items: start;
   display: grid;
   gap: 14px;
   grid-template-columns: repeat(auto-fit, minmax(240px, 380px));

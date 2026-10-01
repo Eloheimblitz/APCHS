@@ -32,11 +32,8 @@ export default function Dashboard() {
         <Link className="button-link" to="/surveys/new">Add survey</Link>
       </header>
 
-      <section className="stat-grid">
-        {cards.map(([label, value, tone]) => <StatCard key={label} label={label} value={value} tone={tone} />)}
-      </section>
-
       <section className="chart-grid">
+        {cards.map(([label, value, tone]) => <StatCard key={label} label={label} value={value} tone={tone} />)}
         <ChartPanel title="Survey count by study area" data={summary.surveyCountByStudyArea} />
       </section>
 
@@ -52,13 +49,9 @@ export default function Dashboard() {
         <ChartPanel title="Respondent vaccination" data={summary.respondentVaccinationDistribution} type="pie" />
       </section>
 
-      <h2 className="dashboard-section-title">Existing Health Conditions</h2>
+      <h2 className="dashboard-section-title">Health Conditions &amp; Symptoms</h2>
       <section className="chart-grid">
-        <ChartPanel title="Conditions" data={summary.conditionsCount} />
-      </section>
-
-      <h2 className="dashboard-section-title">Symptoms</h2>
-      <section className="chart-grid">
+        <ChartPanel title="Existing conditions" data={summary.conditionsCount} />
         <ChartPanel title="Common symptoms" data={summary.commonSymptomsCount} />
       </section>
     </div>
