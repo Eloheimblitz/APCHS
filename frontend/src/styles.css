@@ -446,24 +446,24 @@ textarea {
 
 .chart-grid {
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .dashboard-section-title {
   color: var(--color-text);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
-  margin: 28px 0 14px;
+  margin: 16px 0 10px;
 }
 
 .dashboard-section-title:first-of-type {
-  margin-top: 20px;
+  margin-top: 14px;
 }
 
 .chart-card {
   overflow: hidden;
-  padding: 18px 18px 16px;
+  padding: 14px 16px 12px;
 }
 
 .chart-card-header {
@@ -471,7 +471,7 @@ textarea {
   display: flex;
   gap: 12px;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .chart-card-header span {
@@ -483,12 +483,12 @@ textarea {
 }
 
 .chart-viewport {
-  height: 218px;
+  height: 170px;
   position: relative;
 }
 
 .donut-viewport {
-  height: 210px;
+  height: 160px;
 }
 
 .donut-center {
@@ -535,9 +535,10 @@ textarea {
 .chart-legend {
   border-top: 1px solid var(--color-border);
   display: grid;
-  gap: 6px;
-  margin-top: 10px;
-  padding-top: 10px;
+  gap: 4px 8px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  margin-top: 8px;
+  padding-top: 8px;
 }
 
 .chart-legend button {
@@ -549,10 +550,10 @@ textarea {
   display: grid;
   font-size: 12px;
   font-weight: 800;
-  gap: 8px;
+  gap: 6px;
   grid-template-columns: 10px minmax(0, 1fr) auto auto;
-  min-height: 30px;
-  padding: 5px 7px;
+  min-height: 26px;
+  padding: 4px 6px;
   text-align: left;
 }
 
