@@ -3,6 +3,15 @@ import { Link } from 'react-router-dom';
 import api from '../api/client';
 import ChartPanel from '../components/ChartPanel';
 import StatCard from '../components/StatCard';
+import {
+  ActivityIcon,
+  BarChartIcon,
+  CalendarIcon,
+  HeartPulseIcon,
+  HouseholdIcon,
+  MapPinIcon,
+  SyringeIcon
+} from '../components/Icon';
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
@@ -17,9 +26,9 @@ export default function Dashboard() {
   if (error) return <div className="page"><div className="alert error">{error}</div></div>;
   if (!summary) return <div className="page"><p>Loading dashboard...</p></div>;
 
-  const cards = [
-    ['Total households surveyed', summary.totalHouseholdsSurveyed, 'blue'],
-    ['Study areas covered', summary.totalStudyAreasCovered, 'teal']
+  const genderBreakdown = [
+    ['Male', summary.genderDistribution?.MALE ?? 0],
+    ['Female', summary.genderDistribution?.FEMALE ?? 0]
   ];
 
   return (
@@ -32,15 +41,48 @@ export default function Dashboard() {
         <Link className="button-link" to="/surveys/new">Add survey</Link>
       </header>
 
+      <div className="dashboard-hero-row">
+        <ChartPanel
+          title="Survey count by study area"
+          data={summary.surveyCountByStudyArea}
+          icon={BarChartIcon}
+          tone="blue"
+        />
+        <div className="dashboard-sidebar">
+          <StatCard
+            label="Total households surveyed"
+            value={summary.totalHouseholdsSurveyed}
+            tone="blue"
+            icon={HouseholdIcon}
+            breakdown={genderBreakdown}
+          />
+          <StatCard
+            label="Study areas covered"
+            value={summary.totalStudyAreasCovered}
+            tone="teal"
+            icon={MapPinIcon}
+          />
+        </div>
+      </div>
+
       <section className="chart-grid">
-        {cards.map(([label, value, tone]) => <StatCard key={label} label={label} value={value} tone={tone} />)}
-        <ChartPanel title="Survey count by study area" data={summary.surveyCountByStudyArea} />
-        <ChartPanel title="Gender" data={summary.genderDistribution} type="pie" />
-        <ChartPanel title="Age" data={summary.ageDistribution} />
-        <ChartPanel title="Child vaccination" data={summary.childVaccinationDistribution} type="pie" />
-        <ChartPanel title="Respondent vaccination" data={summary.respondentVaccinationDistribution} type="pie" />
-        <ChartPanel title="Existing conditions" data={summary.conditionsCount} />
-        <ChartPanel title="Common symptoms" data={summary.commonSymptomsCount} />
+        <ChartPanel title="Age" data={summary.ageDistribution} icon={CalendarIcon} tone="amber" />
+        <ChartPanel
+          title="Child vaccination"
+          data={summary.childVaccinationDistribution}
+          type="pie"
+          icon={SyringeIcon}
+          tone="green"
+        />
+        <ChartPanel
+          title="Respondent vaccination"
+          data={summary.respondentVaccinationDistribution}
+          type="pie"
+          icon={SyringeIcon}
+          tone="teal"
+        />
+        <ChartPanel title="Existing conditions" data={summary.conditionsCount} icon={HeartPulseIcon} tone="rose" />
+        <ChartPanel title="Common symptoms" data={summary.commonSymptomsCount} icon={ActivityIcon} tone="amber" />
       </section>
     </div>
   );

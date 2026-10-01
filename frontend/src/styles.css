@@ -419,12 +419,57 @@ textarea {
   border-radius: var(--radius-md);
 }
 
-.stat-card {
-  border-top: 3px solid var(--stat-accent, var(--color-primary));
+.stat-card,
+.chart-card {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-hero-row {
+  align-items: start;
   display: grid;
-  gap: 6px;
-  padding: 14px 16px 15px;
+  gap: 14px;
+  grid-template-columns: 1.7fr 1fr;
+}
+
+.dashboard-sidebar {
+  align-content: start;
+  display: grid;
+  gap: 14px;
+}
+
+.icon-badge {
+  align-items: center;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+
+.icon-badge.tone-blue { background: var(--color-primary-soft); color: var(--color-primary); }
+.icon-badge.tone-teal { background: var(--color-accent-soft); color: var(--color-accent); }
+.icon-badge.tone-amber { background: var(--color-warning-soft); color: var(--color-warning); }
+.icon-badge.tone-rose { background: var(--color-danger-soft); color: var(--color-danger); }
+.icon-badge.tone-green { background: var(--color-success-soft); color: var(--color-success); }
+
+.stat-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px 18px;
   position: relative;
+}
+
+.stat-card-main {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.stat-card-main div {
+  display: grid;
+  gap: 2px;
 }
 
 .stat-card span {
@@ -436,6 +481,29 @@ textarea {
 .stat-card strong {
   font-size: 24px;
   letter-spacing: -0.01em;
+}
+
+.stat-breakdown {
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.stat-breakdown div {
+  display: grid;
+  gap: 2px;
+}
+
+.stat-breakdown strong {
+  color: var(--color-text);
+  font-size: 15px;
+}
+
+.stat-breakdown span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .stat-card.tone-blue { --stat-accent: var(--color-primary); }
@@ -462,6 +530,12 @@ textarea {
   gap: 12px;
   justify-content: space-between;
   margin-bottom: 6px;
+}
+
+.chart-card-heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
 }
 
 .chart-card-header span {
@@ -1168,6 +1242,10 @@ tbody tr:nth-child(even) {
   .page-header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .dashboard-hero-row {
+    grid-template-columns: 1fr;
   }
 }
 

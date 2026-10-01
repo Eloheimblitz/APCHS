@@ -26,7 +26,7 @@ const namedColors = {
   ELECTRICITY: '#0891b2'
 };
 
-export default function ChartPanel({ title, data = {}, type = 'bar' }) {
+export default function ChartPanel({ title, data = {}, type = 'bar', icon: IconComp, tone = 'blue' }) {
   const [activeIndex, setActiveIndex] = useState(null);
   const rows = useMemo(() => Object.entries(data || {})
     .filter(([, value]) => Number(value) > 0)
@@ -43,9 +43,16 @@ export default function ChartPanel({ title, data = {}, type = 'bar' }) {
   return (
     <section className="chart-card interactive-chart">
       <div className="chart-card-header">
-        <div>
-          <h2>{title}</h2>
-          <span>{total} total</span>
+        <div className="chart-card-heading">
+          {IconComp && (
+            <span className={`icon-badge tone-${tone}`}>
+              <IconComp width={18} height={18} />
+            </span>
+          )}
+          <div>
+            <h2>{title}</h2>
+            <span>{total} total</span>
+          </div>
         </div>
       </div>
 
