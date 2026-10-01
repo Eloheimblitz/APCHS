@@ -448,18 +448,7 @@ textarea {
   align-items: start;
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 380px));
-}
-
-.dashboard-section-title {
-  color: var(--color-text);
-  font-size: 14px;
-  font-weight: 800;
-  margin: 16px 0 10px;
-}
-
-.dashboard-section-title:first-of-type {
-  margin-top: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 380px));
 }
 
 .chart-card {

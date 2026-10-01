@@ -35,22 +35,10 @@ export default function Dashboard() {
       <section className="chart-grid">
         {cards.map(([label, value, tone]) => <StatCard key={label} label={label} value={value} tone={tone} />)}
         <ChartPanel title="Survey count by study area" data={summary.surveyCountByStudyArea} />
-      </section>
-
-      <h2 className="dashboard-section-title">Demographics</h2>
-      <section className="chart-grid">
         <ChartPanel title="Gender" data={summary.genderDistribution} type="pie" />
         <ChartPanel title="Age" data={summary.ageDistribution} />
-      </section>
-
-      <h2 className="dashboard-section-title">Vaccination</h2>
-      <section className="chart-grid">
         <ChartPanel title="Child vaccination" data={summary.childVaccinationDistribution} type="pie" />
         <ChartPanel title="Respondent vaccination" data={summary.respondentVaccinationDistribution} type="pie" />
-      </section>
-
-      <h2 className="dashboard-section-title">Health Conditions &amp; Symptoms</h2>
-      <section className="chart-grid">
         <ChartPanel title="Existing conditions" data={summary.conditionsCount} />
         <ChartPanel title="Common symptoms" data={summary.commonSymptomsCount} />
       </section>
